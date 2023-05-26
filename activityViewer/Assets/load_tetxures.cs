@@ -102,19 +102,6 @@ public class load_tetxures : MonoBehaviour
     }
     private static unsafe float ColorToFloat(Color c)
     {
-        /*string intBits =Convert.ToString((int)(c[0]*255),2).PadLeft(8,'0');
-        intBits +=" "+Convert.ToString((int)(c[1]*255),2).PadLeft(8,'0');
-        intBits +=" "+Convert.ToString((int)(c[2]*255),2).PadLeft(8,'0');
-        intBits +=" "+Convert.ToString((int)(c[3]*255),2).PadLeft(8,'0');
-        Debug.Log(intBits); 
-        int val =  ((int)(c[3]*255))<<24|
-					((int)(c[2]*255))<<16|
-					((int)(c[1]*255))<<8|
-					(int)(c[0]*255);
-        Debug.Log(Convert.ToString(val,2).PadLeft(32,'0'));
-        return *(float*)(&val);*/
-        
-        
         byte[] bytes = { (byte)(255 * c[0]), (byte)(255 * c[1]), (byte)(255 * c[2]), (byte)(255 * c[3]) };
         return BitConverter.ToSingle(bytes);
     }

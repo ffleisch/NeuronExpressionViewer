@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:GroupBox style="position: absolute; right: 500px; left: 30px; height: auto; top: 30px; overflow: visible; visibility: visible; display: flex; align-items: stretch; width: 500px;">
+        <ui:DropdownField label="Dataset" index="-1" choices="System.Collections.Generic.List`1[System.String]" name="DropdownFieldDataset" />
+        <ui:DropdownField label="Attribute" index="-1" choices="System.Collections.Generic.List`1[System.String]" name="DropdownFieldAttribute" />
+        <ui:SliderInt picking-mode="Ignore" label="Frame" value="0" high-value="10000" name="SliderIntFrame" />
+        <ui:Toggle label="Run" name="ToggleRun" />
+        <ui:Button text="Button" display-tooltip-when-elided="true" name="ButtonTest" />
+    </ui:GroupBox>
+</ui:UXML>

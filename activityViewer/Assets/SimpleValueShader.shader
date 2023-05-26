@@ -3,8 +3,8 @@ Shader "Unlit/SimpleValueSahder"
 	Properties
 	{
 		_MainTex("Texture", 2D) = "white" {}
-		_step("Step",Int)=0
-		_n_neurons("Number of Neurons",Int)=50000
+		_step("Step",Integer)=0
+		_n_neurons("Number of Neurons",Integer)=50000
 	}
 		SubShader
 	{
@@ -65,14 +65,20 @@ Shader "Unlit/SimpleValueSahder"
 				o.value = DecodeFloat(color);// value;
 				return o;
 			}
+			
+			bool approx(float a, float b) {
+				return a<=b + 0.00001 && a>=b-0.00001;
+			}
 
 			fixed4 frag(v2f i) : SV_Target
 			{
 				// sample the texture
 				//fixed4 col = tex2D(_MainTex, i.uv);
 
-				float intensity = i.value;//>0.5?1:0;
-				fixed4 col = float4(intensity,intensity,intensity,1);
+				float intensity = i.value;//(i.value-30)/100.0f+1.0f;//>0.5?1:0;
+				//float4 area_col = float4(i.uv.y / 50.0f, 1-(i.uv.y/50.0f), 1, 0);
+				float4 area_col = approx(i.uv.y,8)?float4(0,1,0,1):(approx(i.uv.y,43)?float4(1,0,0,1):float4(1,1,1,1));
+				fixed4 col = float4(intensity, intensity, intensity, 1)*area_col;
 
 
 			// apply fog
