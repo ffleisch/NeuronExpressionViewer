@@ -5,6 +5,10 @@ Shader "Unlit/SimpleValueSahder"
 		_MainTex("Texture", 2D) = "white" {}
 		_step("Step",Integer)=0
 		_n_neurons("Number of Neurons",Integer)=50000
+
+		_windowMax("Maximum for Windowing function",Float)=0
+		_windowMin("Minimum for Windowing function",Float)=1
+
 	}
 		SubShader
 	{
@@ -41,6 +45,10 @@ Shader "Unlit/SimpleValueSahder"
 			float4 _MainTex_TexelSize;
 			int _n_neurons;
 			int _step;
+
+			float _windowMax;
+			float _windowMin;
+
 			float DecodeFloat(float4 c){
 				int val =  ((int)(c[3]*255))<<24|
 					((int)(c[2]*255))<<16|
@@ -69,13 +77,13 @@ Shader "Unlit/SimpleValueSahder"
 			bool approx(float a, float b) {
 				return a<=b + 0.00001 && a>=b-0.00001;
 			}
-
 			fixed4 frag(v2f i) : SV_Target
 			{
 				// sample the texture
 				//fixed4 col = tex2D(_MainTex, i.uv);
 
-				float intensity = i.value;//(i.value-30)/100.0f+1.0f;//>0.5?1:0;
+				float intensity = (i.value-_windowMin)/(_windowMax-_windowMin);//(i.value-30)/100.0f+1.0f;//>0.5?1:0;
+				intensity = clamp(intensity, 0, 1);
 				//float4 area_col = float4(i.uv.y / 50.0f, 1-(i.uv.y/50.0f), 1, 0);
 				float4 area_col = approx(i.uv.y,8)?float4(0,1,0,1):(approx(i.uv.y,43)?float4(1,0,0,1):float4(1,1,1,1));
 				fixed4 col = float4(intensity, intensity, intensity, 1)*area_col;

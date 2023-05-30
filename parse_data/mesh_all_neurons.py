@@ -5,6 +5,8 @@ import pandas as pd
 path = "../raw_data/SciVisContest23/viz-calcium/positions/rank_0_positions.txt"
 
 
+
+
 def mesh_points_sphere(points, normals,uvs=None):
     # project all point of the pointcloud onto the unitsphere surrounding the center
     # this makes the mehsing way easier and avoids holes
@@ -45,6 +47,37 @@ def write_obj(path,vertices,triangles,normals=None,uvs=None):
             f.write("f %d/%d/%d %d/%d/%d %d/%d/%d\n"%tuple(np.repeat(t+1,3)))
         pass
     print("saved model")
+
+#this is intented to preserve the vertex order and the per vertex uv coordinates
+def read_obj_inorder(path):
+    with open(path,"r") as f:
+
+        vertices=[]
+        normals=[]
+        uvs=[]
+        triangle_vertices=[]
+        triangle_normals=[]
+        triangle_uvs=[]
+        for l in f.readlines():
+            parts=l.split(" ")
+            if parts[0]=="v":
+                vertices.append((float(parts[1]),float(parts[2]),float(parts[3])))
+
+            if parts[0]=="vn":
+                normals.append((float(parts[1]),float(parts[2]),float(parts[3])))
+            if parts[0]=="vt":
+                uvs.append((float(parts[1]),float(parts[2])))
+
+            if parts[0]=="f":
+                triparts=[]
+                for p in parts[1:]:
+                    triparts.append(p.split("/"))
+
+                triangle_vertices.append((int(triparts[0][0]),int(triparts[1][0]),int(triparts[2][0])))
+                triangle_normals.append((int(triparts[0][1]),int(triparts[1][1]),int(triparts[2][1])))
+                triangle_uvs.append((int(triparts[0][2]),int(triparts[1][2]),int(triparts[2][2])))
+        return np.asarray(vertices),np.asarray(normals),np.asarray(uvs),np.asarray(triangle_vertices),np.asarray(triangle_normals),np.asarray(triangle_uvs)
+    return
 def encode_uvs(points,areas):
     uvs=np.zeros((len(points), 2))
     uvs[:,0]=range(len(points))

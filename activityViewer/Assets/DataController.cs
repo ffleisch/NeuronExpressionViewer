@@ -1,21 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-
 public class DataController : MonoBehaviour
 {
-    private Button buttonTest;
+    private Button buttonResetSliders;
 
     //public int step { get; set; } = 0;
 
     private SliderInt sliderStep;
+    private Slider sliderMax;
+    private Slider sliderMin;
 
     public VisualTreeAsset ui;
 
     public Toggle toggleRun;
 
-    public DropdownField listViewDataSet;
+    public EnumField enumFieldDataset;
+    public EnumField enumFieldAttribute;
+
+    LoadTextures textureLoader;
 
 
     public int step
@@ -26,11 +31,11 @@ public class DataController : MonoBehaviour
         }
         set
         {
-            sliderStep.value= value;
+            sliderStep.value = value;
         }
     }
-    
-    
+
+
 
 
 
@@ -38,35 +43,50 @@ public class DataController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        var uiDocument = GetComponent<UIDocument>() as UIDocument;
+        textureLoader = GetComponent<LoadTextures>();
+        if (!textureLoader)
+        {
+            textureLoader = GetComponentInChildren<LoadTextures>();
+        }
 
+        var uiDocument = GetComponent<UIDocument>() as UIDocument;
         var root = uiDocument.rootVisualElement;
 
-        buttonTest = root.Q("ButtonTest") as Button;
+        buttonResetSliders = root.Q("ButtonResetSliders") as Button;
         sliderStep = root.Q("SliderIntFrame") as SliderInt;
-        toggleRun = root.Q("ToggleRun") as Toggle;
-        listViewDataSet=root.Q("DropdownFieldDataset") as DropdownField;
 
-        foreach (var c in uiDocument.rootVisualElement.Children())
-        {
-            Debug.Log(c);
-        }
-        buttonTest.RegisterCallback<ClickEvent>(buttonOnClick);
-        sliderStep.RegisterCallback<ChangeEvent<int>>(testCallback);
+        sliderMax = root.Q("SliderWindowMax") as Slider;
+        sliderMin = root.Q("SliderWindowMin") as Slider;
+
+        toggleRun = root.Q("ToggleRun") as Toggle;
+        enumFieldDataset = root.Q("EnumFieldDataset") as EnumField;
+        enumFieldAttribute = root.Q("EnumFieldAttribute") as EnumField;
+        var test = root.Q("DropdownFieldDataset");
+
+        buttonResetSliders.RegisterCallback<ClickEvent>(resetSlidersClicked);
+        sliderStep.RegisterCallback<ChangeEvent<int>>(stepChanged);
+
+        sliderMax.RegisterCallback<ChangeEvent<float>>(maxValueChanged);
+        sliderMin.RegisterCallback<ChangeEvent<float>>(minValueChanged);
+
         toggleRun.RegisterCallback<ChangeEvent<bool>>(toggleRunChanged);
 
 
-        
-
+        enumFieldDataset.value = textureLoader.dataSet;
+        enumFieldDataset.RegisterCallback<ChangeEvent<System.Enum>>(dataSetEnumFieldChanged);
+        enumFieldAttribute.value = textureLoader.attribute;
+        enumFieldAttribute.RegisterCallback<ChangeEvent<System.Enum>>(attributeEnumFieldChanged);
+        sliderStep.value = textureLoader.step;
     }
 
-    void buttonOnClick(ClickEvent evt)
+    void resetSlidersClicked(ClickEvent evt)
     {
-        Debug.Log(evt);
-
+        sliderMin.value = 0;
+        sliderMax.value = 1;
     }
-    void testCallback(ChangeEvent<int> evt)
+    void stepChanged(ChangeEvent<int> evt)
     {
+        textureLoader.step = step;
         Debug.Log(evt + " " + evt.newValue);
     }
 
@@ -76,7 +96,27 @@ public class DataController : MonoBehaviour
 
     }
 
+    void dataSetEnumFieldChanged(ChangeEvent<System.Enum> evt)
+    {
+        Debug.Log(evt.newValue);
+        textureLoader.dataSet = (LoadTextures.dataSetsEnum)evt.newValue;
+    }
 
+    void attributeEnumFieldChanged(ChangeEvent<System.Enum> evt)
+    {
+        Debug.Log(evt.newValue);
+        textureLoader.attribute = (LoadTextures.attributesEnum)evt.newValue;
+    }
+
+    void maxValueChanged(ChangeEvent<float> evt)
+    {
+        textureLoader.setWindowingFunctionLimits(sliderMin.value, sliderMax.value);
+    }
+
+    void minValueChanged(ChangeEvent<float> evt)
+    {
+        textureLoader.setWindowingFunctionLimits(sliderMin.value, sliderMax.value);
+    }
     // Update is called once per frame
     void Update()
     {
@@ -84,7 +124,8 @@ public class DataController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (toggleRun.value) {
+        if (toggleRun.value)
+        {
             step += 1;
         }
     }

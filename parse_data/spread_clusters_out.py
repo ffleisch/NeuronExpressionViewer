@@ -56,7 +56,7 @@ line_indices=[(x,x+len(positions)) for x in range(len(positions))]
 
 
 pcl_ref=pcl
-iters=5000
+iters=500
 max_len=0.5
 for i in range(iters):
 
