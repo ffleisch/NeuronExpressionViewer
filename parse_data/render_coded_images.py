@@ -12,7 +12,7 @@ def render_single_attribute(attribute):
     # load the parsed numpy array for this attribute
     array = np.load("./parsed_data/%s/monitors/%s.npy" % (dataset, attribute))
     array = np.asarray(array, dtype=np.single)
-
+    return
     save_path = "./parsed_data/%s/rendered_images/%s" % (dataset, attribute)
 
     size = (2048, 2048)  # size of the images

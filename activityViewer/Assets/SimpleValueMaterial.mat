@@ -58,7 +58,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints:
     - _n_neurons: 50000
-    - _step: 10
+    - _step: 49
     m_Floats:
     - _BumpScale: 1
     - _Cutoff: 0.5
@@ -78,8 +78,8 @@ Material:
     - _ZWrite: 1
     - _n_neurons: 50000
     - _step: 0
-    - _windowMax: -28.6
-    - _windowMin: -68
+    - _windowMax: 1
+    - _windowMin: 0
     - test: 200000
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}

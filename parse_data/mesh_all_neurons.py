@@ -32,7 +32,11 @@ def mesh_points_sphere(points, normals,uvs=None):
     mesh_out.compute_vertex_normals()
     return mesh_out
 
-def write_obj(path,vertices,triangles,normals=None,uvs=None):
+def write_obj(path,vertices,triangles,normals=None,uvs=None,triangle_normals=None,triangle_uvs=None):
+    if triangle_normals is None:
+        triangle_normals=triangles
+    if triangle_uvs is None:
+        triangle_uvs=triangles
     with open(path,"w+") as f:
         #write vertices
         for v in vertices:
@@ -43,8 +47,11 @@ def write_obj(path,vertices,triangles,normals=None,uvs=None):
         if uvs is not None:
             for uv in uvs:
                 f.write("vt %d %d\n"%tuple(uv))
-        for t in triangles:
-            f.write("f %d/%d/%d %d/%d/%d %d/%d/%d\n"%tuple(np.repeat(t+1,3)))
+        for t in zip(triangles,triangle_uvs,triangle_normals):
+            #print(t)
+            indices=np.asarray(t,dtype=int).transpose().flatten()+1
+            #print(indices)
+            f.write("f %d/%d/%d %d/%d/%d %d/%d/%d\n"%tuple(indices))
         pass
     print("saved model")
 

@@ -84,8 +84,14 @@ Shader "Unlit/SimpleValueSahder"
 
 				float intensity = (i.value-_windowMin)/(_windowMax-_windowMin);//(i.value-30)/100.0f+1.0f;//>0.5?1:0;
 				intensity = clamp(intensity, 0, 1);
-				//float4 area_col = float4(i.uv.y / 50.0f, 1-(i.uv.y/50.0f), 1, 0);
+				
+				
+				
+				//float4 area_col = float4(i.uv.y / 50.0f, 1-(i.uv.y/50.0f), 1, 1);
+				//float4 area_col = float4((i.uv.x %50000)/ 50000.0f, (i.uv.x%5000)/5000.0f, (i.uv.y%50)/50.0f, 1);
 				float4 area_col = approx(i.uv.y,8)?float4(0,1,0,1):(approx(i.uv.y,43)?float4(1,0,0,1):float4(1,1,1,1));
+				
+				
 				fixed4 col = float4(intensity, intensity, intensity, 1)*area_col;
 
 

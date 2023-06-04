@@ -83,6 +83,10 @@ public class LoadTextures : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
+
+        //var mf = GetComponent<MeshFilter>();
+        //var test_uvs = mf.mesh.uv;
         initAttribute(dataSet,attribute); 
     }
 
