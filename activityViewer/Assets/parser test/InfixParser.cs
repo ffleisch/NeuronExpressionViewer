@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -6,14 +7,19 @@ using UnityEngine;
 public class InfixParser : MonoBehaviour
 {
 
+
+    //what type can a token be?
+
     public enum TokenType
     {
-        OPERATOR,
-        FUNCTION,
-        VALUE,
-        OTHER
+        OPERATOR, //infix operator
+        FUNCTION, //function f()
+        //VALUE,    //any value, fixed or otherwise
+        VALUE_FLOAT,
+        VALUE_ATTRIBUTE,
+        OTHER     //parantheses and commas 
     }
-    public enum Associativity
+    public enum Associativity //is an operato left or right associative
     {
         LEFT,
         RIGHT,
@@ -22,15 +28,15 @@ public class InfixParser : MonoBehaviour
 
     public class Token
     {
-        public string name;
-        public string identifier;
-        public TokenType type;
-        public Associativity associativity;
-        public int shaderToken = 0;
-        public int numParams = 0;
-        public int precedence = 0;
-        public float value = 0;
-        public readonly int tokenID;
+        public string name; //name
+        public string identifier;   //what string identifies it in the expre4sison to be parsed
+        public TokenType type;      //what type is the operator
+        public Associativity associativity; // left or right associative
+        public int shaderToken = 0; // integer that represents what action shall be taken in the shader
+        public int numParams = 0;  //how many parameters deos this function expect
+        public int precedence = 0; //precedence for order of operations
+        public float value = 0; //value of this token is a value
+        public readonly int tokenID; //unique identifier for this token, not sure if necessary
 
         private static int runningID;
         private Token(string name, string identifier, TokenType type, Associativity associativity, int shaderToken, int numParams, int precedence)
@@ -51,21 +57,30 @@ public class InfixParser : MonoBehaviour
         {
             this.name = "Float Value";
             this.value = value;
-            this.type = TokenType.VALUE;
+            this.type = TokenType.VALUE_FLOAT;
             this.tokenID = -1;
             associativity = Associativity.NONE;
             shaderToken = -1;
         }
 
-        public static readonly Dictionary<string, Token> tokensByName = new();
-        public static readonly Dictionary<string, Token> tokensByIdentifier = new();
-        public static readonly List<Token> tokenList = new();
-        public static void AddToken(string name, string identifier, TokenType type, Associativity associativity, int shaderToken, int numParams, int precedence)
+        public static readonly Dictionary<string, Token> tokensByName = new();//dict for all tokens by their name
+        public static readonly Dictionary<string, Token> tokensByIdentifier = new();//dict for all tokens by their identifier
+        public static readonly List<Token> tokenList = new();   //a singleton list of every token used for parsing
+
+
+
+
+        //is thi right, or should a list be created every time a new parser is made?
+
+
+        //add a token to the list of all tokens and the dicts
+        public static void AddToken(string name, string identifier, TokenType type, Associativity associativity, int shaderToken, int numParams, int precedence,float value =0)
         {
 
             if (!tokensByIdentifier.ContainsKey(identifier))
             {
                 Token t = new Token(name, identifier, type, associativity, shaderToken, numParams, precedence);
+                t.value = value;
                 tokensByName.Add(t.name, t);
                 tokensByIdentifier.Add(t.identifier, t);
                 tokenList.Add(t);
@@ -73,6 +88,14 @@ public class InfixParser : MonoBehaviour
 
         }
 
+        //public static void AddToken(string name, string identifier, TokenType type, Associativity associativity, int shaderToken, int numParams, int precedence, float value) {
+
+        //    AddToken(name, identifier, type, associativity, shaderToken, numParams, precedence);
+        
+        
+        //}
+
+        //use all tokens in the list to make a regex string for splitting an expression into operator parts
         public static string makeTokenRegexString()
         {
             string s = "(";
@@ -93,6 +116,7 @@ public class InfixParser : MonoBehaviour
             return s;
         }
 
+        //all important basic tokens
         public static void initTokenList()
         {
             AddToken("Left Paranthesis", "(", TokenType.OTHER, Associativity.NONE, 0, 0, 0);
@@ -106,38 +130,91 @@ public class InfixParser : MonoBehaviour
             AddToken("Power", "^", TokenType.OPERATOR, Associativity.RIGHT, 6, 2, 4);
             //AddToken("Modulus", "%", TokenType.OPERATOR, Associativity.LEFT, , 2, 3);
 
-            AddToken("uv x", "uvx", TokenType.VALUE, Associativity.NONE, -2, 0, 0);
-            AddToken("uv y", "uvy", TokenType.VALUE, Associativity.NONE, -3, 0, 0);
+            AddToken("uv x", "uvx", TokenType.VALUE_ATTRIBUTE, Associativity.NONE, -2, 0, 0);
+            AddToken("uv y", "uvy", TokenType.VALUE_ATTRIBUTE, Associativity.NONE, -3, 0, 0);
+
+
+            AddToken("Square Root", "sqrt", TokenType.FUNCTION, Associativity.NONE, 7, 1, 5);
+            AddToken("Map Value", "map", TokenType.FUNCTION, Associativity.NONE, 20, 5, 5);
+            AddToken("Clip to Range", "clip", TokenType.FUNCTION, Associativity.NONE, 21, 3, 5);
+
+
+            AddToken("Output single Value", "col", TokenType.FUNCTION, Associativity.LEFT, 100, 1, 5);//check what exact precedence is good for functions
+            AddToken("Output RGB", "rgb", TokenType.FUNCTION, Associativity.LEFT, 101, 3, 5);
 
         }
+        public static Dictionary<LoadTextures.attributesEnum,string>  attributeIdentifiers =new Dictionary<LoadTextures.attributesEnum, string>{
+            {LoadTextures.attributesEnum.step,"step" }, 
+            {LoadTextures.attributesEnum.fired,"fired" }, 
+            {LoadTextures.attributesEnum.fired_fraction,"fired_fraction" }, 
+            {LoadTextures.attributesEnum.activity,"activity" }, 
+            {LoadTextures.attributesEnum.dampening,"dampening" }, 
+            {LoadTextures.attributesEnum.current_calcium,"current_calcium" }, 
+            {LoadTextures.attributesEnum.target_calcium,"target_calcium" }, 
+            {LoadTextures.attributesEnum.synaptic_input,"synaptic_input" }, 
+            {LoadTextures.attributesEnum.background_input,"background_input" }, 
+            {LoadTextures.attributesEnum.grown_axons,"grown_axons" }, 
+            {LoadTextures.attributesEnum.connected_axons,"connected_axons" }, 
+            {LoadTextures.attributesEnum.grown_dendrites,"grown_dendrites" }, 
+            {LoadTextures.attributesEnum.connected_dendrites,"connected_dendrites" } };
+
+
+        public static void AddAttributeTokens()
+        {
+
+            foreach (LoadTextures.attributesEnum attribute in Enum.GetValues(typeof(LoadTextures.attributesEnum)))
+            {
+                var s = LoadTextures.attributeNames[attribute];
+                var identifier = attributeIdentifiers[attribute];
+                Debug.Log(s);
+                AddToken(s, identifier, TokenType.VALUE_ATTRIBUTE, Associativity.NONE, -4, 0, 0,(int)attribute);
+            }
+
+        }
+
 
     }
 
 
 
-
+    //take a string expression and turn into a list of tokens
     List<Token> tokenize(string input)
     {
+        //init the list of valid tokens, this has to only be done once, but i am not sure where it would be best to call this from
         Token.initTokenList();
+        Token.AddAttributeTokens();
+
         var output = new List<Token>();
 
-        string float_regex = "([-]?(?:\\d+(?:[.,]\\d*)?|[.,]\\d+)(?:[eE][-+]?\\d+)?)";
+
+        //regex for splitting along floats in the expression
+        //taken from https://stackoverflow.com/questions/4703390/how-to-extract-a-floating-number-from-a-string
+        //added paranthesis around the entire expression to make it emitt a single group, made all other groups non emitting
+        //TODO discriminate negative sign operator or sign
+        string float_regex = "([-]?(?:\\d+(?:[.]\\d*)?|[.]\\d+)(?:[eE][-+]?\\d+)?)";
+
+        //split along the floats
         var floatParts = Regex.Split(input, float_regex);
 
         Debug.Log(input);
         string tokenRegexString = Token.makeTokenRegexString();
         Debug.Log(tokenRegexString);
+
+
+        //cheks for each part, wether it is a float
         foreach (var floatPart in floatParts)
         {
             if (floatPart == "") { continue; }
 
             if (float.TryParse(floatPart, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float result))
             {
+                //if it is a  float, make a new value token and add it to the output
                 Debug.Log("Float " + result.ToString());
                 output.Add(new Token(result));
             }
             else
             {
+                //if it not a float, split the part with the operator regex and add the token for each operator part
                 foreach (var tokenMatch in Regex.Split(floatPart, tokenRegexString))
                 {
                     if (tokenMatch != "")
@@ -150,6 +227,8 @@ public class InfixParser : MonoBehaviour
                         }
                         else
                         {
+                            //could not find that part in the token dict
+                            //unknown identifier
                             Debug.LogError(string.Format("Could not find Token for {0}", tokenMatch));
                         }
                     }
@@ -160,10 +239,11 @@ public class InfixParser : MonoBehaviour
     }
 
 
-
+    //take a string expression and return a list representing the expression in postfix/reverse polish notation
+    //this is done with the shunting yard algorithm and is in large part taken from https://en.wikipedia.org/wiki/Shunting_yard_algorithm
     public List<Token> parseInfix(string input)
     {
-
+        //create tokens from expression
         var inputTokenized = tokenize(input);
         List<Token> output = new();
         Stack<Token> operatorStack = new();
@@ -173,7 +253,7 @@ public class InfixParser : MonoBehaviour
 
         foreach (var t in inputTokenized)
         {
-            if (t.type == TokenType.VALUE)
+            if (t.type == TokenType.VALUE_FLOAT||t.type==TokenType.VALUE_ATTRIBUTE)
             {
                 output.Add(t);
                 continue;
@@ -236,7 +316,7 @@ public class InfixParser : MonoBehaviour
         string sRpn = "";
         foreach (var t in output)
         {
-            if (t.name=="Float Value")
+            if (t.type==TokenType.VALUE_FLOAT)
             {
                 sRpn += t.value;
             }
@@ -249,32 +329,57 @@ public class InfixParser : MonoBehaviour
         return output;
     }
 
-    public (List<float>, List<float>) parseToShaderArrays(string input) {
+
+    //prepare the values for transfer to the shader
+    //takes the list of tokens in rpn form and creates the array of constants and array ot shader tokens
+
+
+    public (List<float>, List<float>,List<LoadTextures.attributesEnum>) parseToShaderArrays(string input)
+    {
         var tokens = parseInfix(input);
-        List<float> values=new();
-        List<float> shaderTokens=new();
-        foreach (var t in tokens) {
-            if (t.name == "Float Value") {
-                values.Add(t.value);            
+
+        var attibutesNeeded = extractNeededAttributes(tokens);
+
+
+        List<float> values = new();
+        List<float> shaderTokens = new();
+        foreach (var t in tokens)
+        {
+            if (t.type==TokenType.VALUE_FLOAT ||t.type==TokenType.VALUE_ATTRIBUTE)
+            {
+                values.Add(t.value);
             }
             shaderTokens.Add(t.shaderToken);
         }
 
-        string values_string="";
-        foreach (float f in values) {
-            values_string += " " + f.ToString();        
+        string values_string = "";
+        foreach (float f in values)
+        {
+            values_string += " " + f.ToString();
         }
 
-        string tokens_string="";
-        foreach (float f in shaderTokens) {
-            tokens_string += " " + f.ToString();        
+        string tokens_string = "";
+        foreach (float f in shaderTokens)
+        {
+            tokens_string += " " + f.ToString();
         }
         Debug.Log(values_string);
         Debug.Log(tokens_string);
 
-        return (values,shaderTokens);
+        return (values, shaderTokens,attibutesNeeded);
     }
 
+
+    public List<LoadTextures.attributesEnum> extractNeededAttributes(List<Token> parsedExpression) {
+        var outp = new List<LoadTextures.attributesEnum>();
+        
+        foreach (var t in parsedExpression) {
+            if (t.shaderToken == -4) { //token for an attribute
+                outp.Add((LoadTextures.attributesEnum)(int)t.value);
+            }
+        }
+        return outp;
+    }
 
 
     private void Start()

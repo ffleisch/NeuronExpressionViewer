@@ -23,6 +23,9 @@ public class testInterpreter : MonoBehaviour
         printCurrentValuesAndTokens();
     }
 
+
+
+    //read the current value and token arrays from the graphics card and print them
     void printCurrentValuesAndTokens()
     {
         var renderer = GetComponent<Renderer>();
@@ -54,6 +57,8 @@ public class testInterpreter : MonoBehaviour
     }
     const int maxTokens = 256;
     const int maxValues = 128;
+
+    //take a string infix expression, parse it and send the appropriate arrays to the shader for display
     void setShaderExpression(string s)
     {
 
@@ -61,7 +66,7 @@ public class testInterpreter : MonoBehaviour
         mat = renderer.sharedMaterial;
 
         InfixParser parse = new();
-        (var values, var tokens) = parse.parseToShaderArrays(s);
+        (var values, var tokens,var neededAttributes) = parse.parseToShaderArrays(s);
 
 
         if (tokens.Count > 0)
@@ -82,6 +87,7 @@ public class testInterpreter : MonoBehaviour
     }
 
     // Update is called once per frame
+    //only parse when the expression has changed
     void Update()
     {
         if (_expressionOld != expression)

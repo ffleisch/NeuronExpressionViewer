@@ -1,7 +1,7 @@
 import re
 import shunting_yard_functions as syf
-#expression = "3*(2+1)^2+4*exp(3.141592e0)"
-expression = "3*(2+1)^2+4*3.141592e0"
+expression = "3*(2+1)^2+4*exp(3.141592e0)"
+#expression = "3*(2+1)^2+4*3.141592e0"
 
 
 operators =         ["+", "-", "*", "/", "^", "exp", "(", ")"]

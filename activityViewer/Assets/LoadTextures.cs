@@ -11,12 +11,19 @@ public class LoadTextures : MonoBehaviour
 
     TextureWithInterval tex_current = new(null, -1, -1, "");
 
+
+    //class for keeping track of what texture is loaded, its path and the steps encoded in that texture
     private class TextureWithInterval
     {
+        //the texture gameobject
         public Texture2D tex;
+
+        //range of steps represented in the texture
         public int start = -1;
         public int end = -1;
         string path = "";
+
+        //check if a single step is encoded in this texture
         public bool contains_step(int step)
         {
             return start <= step && step < end;
@@ -30,12 +37,16 @@ public class LoadTextures : MonoBehaviour
         }
     }
 
+
+    //possible datasets
     public enum dataSetsEnum
     {
         viz_no_network, viz_calcium, viz_disable, viz_stimulus
     }
+    //strings of the paths for the possible datasets
     static string[] dataSetNames = { "viz-no-network", "viz-calcium", "viz-disable", "viz-stimulus" };
 
+    //c sharp property for accessing the dataset curently selected 
     public dataSetsEnum dataSet
     {
         get { return _dataSet; }
@@ -45,11 +56,14 @@ public class LoadTextures : MonoBehaviour
             _dataSet = value;
         }
     }
-    
+    //private field backing the dataset field, visible in editor
     [SerializeField]
     private dataSetsEnum _dataSet;
 
-    public attributesEnum attribute { 
+
+    //same setup for currently selected attribute
+    public attributesEnum attribute
+    {
         get { return _attribute; }
         set
         {
@@ -57,28 +71,45 @@ public class LoadTextures : MonoBehaviour
             _attribute = value;
         }
     }
-    
+
     [SerializeField]
     private attributesEnum _attribute;
-    
-    
-    
+
+
+
     public enum attributesEnum
     {
         step, fired, fired_fraction, activity, dampening, current_calcium, target_calcium,
         synaptic_input, background_input, grown_axons, connected_axons, grown_dendrites,
         connected_dendrites
     }
-    static string[] columnNames = {"step", "fired", "fired fraction", "activity", "dampening", "current calcium", "target calcium",
-        "synaptic input", "background input", "grown axons", "connected axons", "grown dendrites",
-        "connected dendrites" };
+    public static Dictionary<attributesEnum,string> attributeNames = new Dictionary<attributesEnum, string>{
+        { attributesEnum.step, "step" },
+        {attributesEnum.fired, "fired" }, 
+        {attributesEnum.fired_fraction,"fired fraction" }, 
+        {attributesEnum.activity,"activity" }, 
+        {attributesEnum.dampening,"dampening" }, 
+        {attributesEnum.current_calcium,"current calcium" }, 
+        {attributesEnum.target_calcium,"target calcium" }, 
+        {attributesEnum.synaptic_input,"synaptic input" }, 
+        {attributesEnum.background_input,"background input" }, 
+        {attributesEnum.grown_axons,"grown axons" }, 
+        {attributesEnum.connected_axons,"connected axons" }, 
+        {attributesEnum.grown_dendrites,"grown dendrites" },
+        {attributesEnum.connected_dendrites, "connected dendrites" } };
+
+
+    //how many neruons in the simulation
     const int num_neurons = 50000;
+    //how many frames are captured in the simulation (does not equal timesteps simulated by about x100)
     const int num_steps = 10000;
     [Range(0, num_steps - 1)]
-    public int step;
+    public int step;//kind of a misnomer TODO rename step everywhere
 
     public bool do_run;
 
+
+    //all intervalls available in the current directory
     List<(int, int, string)> intervals_list;
     // Start is called before the first frame update
     void Start()
@@ -87,14 +118,19 @@ public class LoadTextures : MonoBehaviour
 
         //var mf = GetComponent<MeshFilter>();
         //var test_uvs = mf.mesh.uv;
-        initAttribute(dataSet,attribute); 
+        initAttribute(dataSet, attribute);
     }
 
-
-    void initAttribute(dataSetsEnum dataSet, attributesEnum attribute) { 
-         string file_path = Path.Combine("..", "parse_data", "parsed_data", dataSetNames[(int)dataSet], "rendered_images", columnNames[(int)attribute]);
+    //find all the files in the directory for the selected attribute of dataset
+    //make the list of intervals for requesting the right filename for a tep
+    void initAttribute(dataSetsEnum dataSet, attributesEnum attribute)
+    {
+        //make the file path from the selected attribute and dataset
+        string file_path = Path.Combine("..", "parse_data", "parsed_data", dataSetNames[(int)dataSet], "rendered_images", attributeNames[attribute]);
         Debug.Log(file_path);
 
+
+        //load a test png, not sure if still necessary/usfull
         tex = LoadPNG(Path.Combine(file_path, "test.png"));
 
         var info = new DirectoryInfo(file_path);
@@ -127,27 +163,47 @@ public class LoadTextures : MonoBehaviour
         //Color c = tex.GetPixel(x, y);
         //Debug.Log(ColorToFloat(c));
 
+
+        //check if the current texture encodes the current step 
         if (!tex_current.contains_step(step))
         {
+            //if not load the appropraite texture
             tex_current = LoadTextureForStep(step);
             //Debug.Log("Loaded_Texture");   
         }
-        Material mat = GetComponent<Renderer>().sharedMaterial;
-        mat.SetTexture("_MainTex", tex);
-        mat.SetInteger("_n_neurons", num_neurons);
-        mat.SetInteger("_step", step - tex_current.start);
+
+
+        //set the parameters and texture for tzhe shacder to render the attribute
+
+        Renderer renderer = GetComponent<Renderer>();
+        if(renderer)
+        {
+            var mat = renderer.sharedMaterial;
+            mat.SetTexture("_MainTex", tex);
+            mat.SetInteger("_n_neurons", num_neurons);
+            mat.SetInteger("_step", step - tex_current.start);
+        }
     }
 
-    void datasetChanged(dataSetsEnum newSet) {
+    //callback for when the selected dataset is changed
+    //just init the attribute again
+    void datasetChanged(dataSetsEnum newSet)
+    {
         Debug.Log(newSet);
         initAttribute(newSet, attribute);
     }
 
-    void attributeChanged(attributesEnum newAttribute) {
+
+    //callback for when the selected attribute is changed
+    //just init the attribute again
+    void attributeChanged(attributesEnum newAttribute)
+    {
         Debug.Log(newAttribute);
-        initAttribute(dataSet,newAttribute);
+        initAttribute(dataSet, newAttribute);
     }
 
+
+    //advance one frame in the simulation, if the toggle is enabled
     private void FixedUpdate()
     {
         if (do_run)
@@ -155,13 +211,16 @@ public class LoadTextures : MonoBehaviour
             step += 1;
         }
     }
+
+
+    //test function for extracting the encoded float from the color from the image
     private static unsafe float ColorToFloat(Color c)
     {
         byte[] bytes = { (byte)(255 * c[0]), (byte)(255 * c[1]), (byte)(255 * c[2]), (byte)(255 * c[3]) };
         return BitConverter.ToSingle(bytes);
     }
 
-
+    //load the approriate texture for a given step by iterating over the intervall list and returning the associated path
     private TextureWithInterval LoadTextureForStep(int step)
     {
         foreach ((var s, var e, var path) in intervals_list)
@@ -176,6 +235,8 @@ public class LoadTextures : MonoBehaviour
 
     }
 
+
+    //same thing but only gives the path
     private string file_name_from_step(int step)
     {
         foreach ((var s, var e, var name) in intervals_list)
@@ -188,6 +249,7 @@ public class LoadTextures : MonoBehaviour
         return "not found";
     }
 
+    //testfuncton for getting the value of a single neuron in a timestep
     private float FloatFromIndex(int step, int neuron, int n_neurons = 50000, int width = 2048)
     {
         (int x, int y) = CoordsFromIndex(step, neuron, n_neurons, width);
@@ -202,6 +264,8 @@ public class LoadTextures : MonoBehaviour
         return (x, width - y - 1);
     }
 
+    //load a png at runtime into a Texture2D gameobject
+    //taken from https://gist.github.com/openroomxyz/bb22a79fcae656e257d6153b867ad437
     private static Texture2D LoadPNG(string filePath)
     {
 
@@ -212,9 +276,9 @@ public class LoadTextures : MonoBehaviour
         {
             fileData = System.IO.File.ReadAllBytes(filePath);
             tex = new Texture2D(2, 2);
-            tex.requestedMipmapLevel = 0;
+            tex.requestedMipmapLevel = 0;//dont make a mip map, we want to sample this texture for its exact values
             tex.anisoLevel = 0;
-            tex.filterMode = FilterMode.Point;
+            tex.filterMode = FilterMode.Point;//nearest neighbor for interpolation, there should be no interpolation of uncorrelated (but neighboring in the image) neuron values
 
             tex.LoadImage(fileData); //..this will auto-resize the texture dimensions.
         }
@@ -222,8 +286,10 @@ public class LoadTextures : MonoBehaviour
         return tex;
     }
 
-    public void setWindowingFunctionLimits(float minV, float maxV) { 
-    
+    //set windowing paramters in shader
+    public void setWindowingFunctionLimits(float minV, float maxV)
+    {
+
         Material mat = GetComponent<Renderer>().sharedMaterial;
         mat.SetFloat("_windowMin", minV);
         mat.SetFloat("_windowMax", maxV);

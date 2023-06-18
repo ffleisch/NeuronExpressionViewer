@@ -48,7 +48,9 @@ Shader "Unlit/SimpleValueSahder"
 
 			float _windowMax;
 			float _windowMin;
+			
 
+			//decode the float value from a given color
 			float DecodeFloat(float4 c){
 				int val =  ((int)(c[3]*255))<<24|
 					((int)(c[2]*255))<<16|
@@ -56,6 +58,7 @@ Shader "Unlit/SimpleValueSahder"
 					(int)(c[0]*255);
 				return asfloat(val);
 			}
+
 			v2f vert(appdata v)
 			{
 				v2f o;
