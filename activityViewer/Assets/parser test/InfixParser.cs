@@ -143,29 +143,15 @@ public class InfixParser : MonoBehaviour
             AddToken("Output RGB", "rgb", TokenType.FUNCTION, Associativity.LEFT, 101, 3, 5);
 
         }
-        public static Dictionary<LoadTextures.attributesEnum,string>  attributeIdentifiers =new Dictionary<LoadTextures.attributesEnum, string>{
-            {LoadTextures.attributesEnum.step,"step" }, 
-            {LoadTextures.attributesEnum.fired,"fired" }, 
-            {LoadTextures.attributesEnum.fired_fraction,"fired_fraction" }, 
-            {LoadTextures.attributesEnum.activity,"activity" }, 
-            {LoadTextures.attributesEnum.dampening,"dampening" }, 
-            {LoadTextures.attributesEnum.current_calcium,"current_calcium" }, 
-            {LoadTextures.attributesEnum.target_calcium,"target_calcium" }, 
-            {LoadTextures.attributesEnum.synaptic_input,"synaptic_input" }, 
-            {LoadTextures.attributesEnum.background_input,"background_input" }, 
-            {LoadTextures.attributesEnum.grown_axons,"grown_axons" }, 
-            {LoadTextures.attributesEnum.connected_axons,"connected_axons" }, 
-            {LoadTextures.attributesEnum.grown_dendrites,"grown_dendrites" }, 
-            {LoadTextures.attributesEnum.connected_dendrites,"connected_dendrites" } };
 
 
         public static void AddAttributeTokens()
         {
 
-            foreach (LoadTextures.attributesEnum attribute in Enum.GetValues(typeof(LoadTextures.attributesEnum)))
+            foreach (attributesEnum attribute in Enum.GetValues(typeof(attributesEnum)))
             {
-                var s = LoadTextures.attributeNames[attribute];
-                var identifier = attributeIdentifiers[attribute];
+                var s = AttributeUtils.attributeNames[attribute];
+                var identifier = AttributeUtils.attributeIdentifiers[attribute];
                 Debug.Log(s);
                 AddToken(s, identifier, TokenType.VALUE_ATTRIBUTE, Associativity.NONE, -4, 0, 0,(int)attribute);
             }
@@ -334,7 +320,7 @@ public class InfixParser : MonoBehaviour
     //takes the list of tokens in rpn form and creates the array of constants and array ot shader tokens
 
 
-    public (List<float>, List<float>,List<LoadTextures.attributesEnum>) parseToShaderArrays(string input)
+    public (List<float>, List<float>,List<attributesEnum>) parseToShaderArrays(string input)
     {
         var tokens = parseInfix(input);
 
@@ -347,7 +333,14 @@ public class InfixParser : MonoBehaviour
         {
             if (t.type==TokenType.VALUE_FLOAT ||t.type==TokenType.VALUE_ATTRIBUTE)
             {
-                values.Add(t.value);
+
+                if (t.shaderToken != -4)
+                {
+                    values.Add(t.value);
+                }
+                else {
+                    values.Add(attibutesNeeded.FindIndex(a=>a==(attributesEnum)t.value));
+                }
             }
             shaderTokens.Add(t.shaderToken);
         }
@@ -370,12 +363,12 @@ public class InfixParser : MonoBehaviour
     }
 
 
-    public List<LoadTextures.attributesEnum> extractNeededAttributes(List<Token> parsedExpression) {
-        var outp = new List<LoadTextures.attributesEnum>();
+    public List<attributesEnum> extractNeededAttributes(List<Token> parsedExpression) {
+        var outp = new List<attributesEnum>();
         
         foreach (var t in parsedExpression) {
             if (t.shaderToken == -4) { //token for an attribute
-                outp.Add((LoadTextures.attributesEnum)(int)t.value);
+                outp.Add((attributesEnum)(int)t.value);
             }
         }
         return outp;

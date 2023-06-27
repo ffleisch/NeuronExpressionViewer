@@ -7,11 +7,11 @@ public class ExpressionTexturesControlller : MonoBehaviour
 {
     Texture2DArray texArray;
 
-    public void loadAttributes(List<LoadTextures.attributesEnum> attributes)
+    public void loadAttributes(List<attributesEnum> attributes)
     {
         LoadTextures[] availableTextures = gameObject.GetComponents<LoadTextures>();
-        Dictionary<LoadTextures.attributesEnum, LoadTextures> loadedAttributes = new();
-        HashSet<LoadTextures.attributesEnum> wantedAttributes = new();
+        Dictionary<attributesEnum, LoadTextures> loadedAttributes = new();
+        HashSet<attributesEnum> wantedAttributes = new();
         foreach (var t in availableTextures)
         {
             loadedAttributes.Add(t.attribute, t);
@@ -45,7 +45,7 @@ public class ExpressionTexturesControlller : MonoBehaviour
     {
         LoadTextures[] availableTextures = gameObject.GetComponents<LoadTextures>();
 
-        var indices = new Dictionary<LoadTextures.attributesEnum, int>();
+        var indices = new Dictionary<attributesEnum, int>();
 
         List<float> texturesInShader = new();
         List<Texture2D> textures = new();

@@ -39,13 +39,7 @@ public class LoadTextures : MonoBehaviour
 
 
     //possible datasets
-    public enum dataSetsEnum
-    {
-        viz_no_network, viz_calcium, viz_disable, viz_stimulus
-    }
-    //strings of the paths for the possible datasets
-    static string[] dataSetNames = { "viz-no-network", "viz-calcium", "viz-disable", "viz-stimulus" };
-
+   
     //c sharp property for accessing the dataset curently selected 
     public dataSetsEnum dataSet
     {
@@ -77,27 +71,7 @@ public class LoadTextures : MonoBehaviour
 
 
 
-    public enum attributesEnum
-    {
-        step, fired, fired_fraction, activity, dampening, current_calcium, target_calcium,
-        synaptic_input, background_input, grown_axons, connected_axons, grown_dendrites,
-        connected_dendrites
-    }
-    public static Dictionary<attributesEnum,string> attributeNames = new Dictionary<attributesEnum, string>{
-        { attributesEnum.step, "step" },
-        {attributesEnum.fired, "fired" }, 
-        {attributesEnum.fired_fraction,"fired fraction" }, 
-        {attributesEnum.activity,"activity" }, 
-        {attributesEnum.dampening,"dampening" }, 
-        {attributesEnum.current_calcium,"current calcium" }, 
-        {attributesEnum.target_calcium,"target calcium" }, 
-        {attributesEnum.synaptic_input,"synaptic input" }, 
-        {attributesEnum.background_input,"background input" }, 
-        {attributesEnum.grown_axons,"grown axons" }, 
-        {attributesEnum.connected_axons,"connected axons" }, 
-        {attributesEnum.grown_dendrites,"grown dendrites" },
-        {attributesEnum.connected_dendrites, "connected dendrites" } };
-
+   
 
     //how many neruons in the simulation
     const int num_neurons = 50000;
@@ -126,7 +100,7 @@ public class LoadTextures : MonoBehaviour
     void initAttribute(dataSetsEnum dataSet, attributesEnum attribute)
     {
         //make the file path from the selected attribute and dataset
-        string file_path = Path.Combine("..", "parse_data", "parsed_data", dataSetNames[(int)dataSet], "rendered_images", attributeNames[attribute]);
+        string file_path = Path.Combine("..", "parse_data", "parsed_data", AttributeUtils.dataSetNames[dataSet], "rendered_images", AttributeUtils.attributeNames[attribute]);
         Debug.Log(file_path);
 
 

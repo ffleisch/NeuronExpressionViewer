@@ -62,7 +62,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints:
     - _n_neurons: 50000
-    - _step: 0
+    - _step: 3
     - test_index: 29
     m_Floats:
     - _BumpScale: 1
