@@ -14,6 +14,7 @@ public class ExpressionController : MonoBehaviour
     Label labelStatus;
     ExpressionTexturesControlller textureController;
     // Start is called before the first frame update
+    AttributeArrayTextureController test;
     void Start()
     {
         var uiDocument = GetComponent<UIDocument>();
@@ -25,7 +26,8 @@ public class ExpressionController : MonoBehaviour
 
         textFieldExpression.RegisterValueChangedCallback(expressionChanged);
 
-
+        test = gameObject.AddComponent<AttributeArrayTextureController>();
+ 
     }
 
     const int maxTokens = 256;
@@ -57,13 +59,13 @@ public class ExpressionController : MonoBehaviour
             shaderValues.CopyTo(valueArray, 0);
             mat.SetFloatArray("values", valueArray);
         }
-
+        test.setAttributesToBeLoaded(neededAttributes);
     }
 
 
     // Update is called once per frame
     void Update()
     {
-
+    
     }
 }

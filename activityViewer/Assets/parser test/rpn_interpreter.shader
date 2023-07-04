@@ -7,6 +7,7 @@ Shader "Unlit/rpn_interpreter"
     {
         _attributesArrayTexture("Attributes Array Texture", 2DArray) = "" {}
         _MainTex ("Texture", 2D) = "white" {}
+        _neuronMap("Map from surface to the neurons",2D) = "black"{}
 		_n_neurons("Number of Neurons",Integer)=50000
 		_step("Step",Integer)=0
         test_index("Test index",Integer)=0
@@ -37,10 +38,11 @@ Shader "Unlit/rpn_interpreter"
                 float2 uv : TEXCOORD0;
                 UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
-                float4 col: COLOR;
+                //float4 col: COLOR;
             };
 
             sampler2D _MainTex;
+            sampler2D _neuronMap;
 
             float4 _MainTex_ST;
             uniform float values[128];
@@ -83,6 +85,16 @@ Shader "Unlit/rpn_interpreter"
                 o.uv = v.uv;//TRANSFORM_TEX(v.uv, _MainTex);
                 UNITY_TRANSFER_FOG(o,o.vertex);
 
+               
+                //o.col = col;
+                return o;
+            }
+            
+
+
+
+            fixed4 frag(v2f inp) : SV_Target
+            {
                 float stack[64];//stack of values
                 stack[0] = 0;
                 int stack_index = 0;
@@ -97,18 +109,18 @@ Shader "Unlit/rpn_interpreter"
                     }else
                     if (token == -2) {//put the uv.x on the stack
                         stack_index++;
-                        stack[stack_index] = o.uv.x;
+                        stack[stack_index] = inp.uv.x;
                         value_index++;
                     }else
                     if (token == -3) {
                         stack_index++;
-                        stack[stack_index] = o.uv.y;
+                        stack[stack_index] = inp.uv.y;
                         value_index++;
                     }else
 
 					if (token == -4) {
                         stack_index++;
-                        stack[stack_index] = sampleStep(values[value_index],floor(o.uv.x+0.5));
+                        stack[stack_index] = sampleStep(values[value_index],floor(decodeFloat(tex2Dlod(_neuronMap,float4(inp.uv,0,0)))+0.5));
                         value_index++;
                     }else
 
@@ -180,24 +192,14 @@ Shader "Unlit/rpn_interpreter"
                 //the final color is the top element of the stack
                 fixed4 col = colOut;//float4(stack[stack_index-1],0,0,1);
 
-                o.col = col;
-                return o;
-            }
-            
-
-
-
-            fixed4 frag(v2f inp) : SV_Target
-            {
-
 
 
                 // sample the texture
                 //fixed4 col = float4(inp.uv.x,values[uint(inp.uv.y/256.0f)%5],0,1);
                 //fixed4 col = float4(inp.uv.x,values[test_index%5],0,1);
                 // apply fog
-                UNITY_APPLY_FOG(inp.fogCoord, inp.col);
-                return inp.col;
+                //UNITY_APPLY_FOG(inp.fogCoord, inp.col);
+                return col;
             }
             ENDCG
         }

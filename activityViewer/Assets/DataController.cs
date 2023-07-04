@@ -99,13 +99,13 @@ public class DataController : MonoBehaviour
     void dataSetEnumFieldChanged(ChangeEvent<System.Enum> evt)
     {
         Debug.Log(evt.newValue);
-        textureLoader.dataSet = (LoadTextures.dataSetsEnum)evt.newValue;
+        textureLoader.dataSet = (dataSetsEnum)evt.newValue;
     }
 
     void attributeEnumFieldChanged(ChangeEvent<System.Enum> evt)
     {
         Debug.Log(evt.newValue);
-        textureLoader.attribute = (LoadTextures.attributesEnum)evt.newValue;
+        textureLoader.attribute = (attributesEnum)evt.newValue;
     }
 
     void maxValueChanged(ChangeEvent<float> evt)

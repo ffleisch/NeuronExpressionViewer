@@ -110,7 +110,7 @@ public class LoadTextures : MonoBehaviour
         var info = new DirectoryInfo(file_path);
         intervals_list = new List<(int, int, string)>();
 
-        var name_format_regex = new Regex("\\d{5}_\\d{5}.png");
+        var name_format_regex = new Regex("\\d+_\\d+.png");
 
 
         foreach (var f in info.GetFiles())
@@ -240,7 +240,7 @@ public class LoadTextures : MonoBehaviour
 
     //load a png at runtime into a Texture2D gameobject
     //taken from https://gist.github.com/openroomxyz/bb22a79fcae656e257d6153b867ad437
-    private static Texture2D LoadPNG(string filePath)
+    public static Texture2D LoadPNG(string filePath)
     {
 
         Texture2D tex = null;
