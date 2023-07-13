@@ -144,7 +144,7 @@ public class AttributeArrayTextureController : MonoBehaviour
 
 
     private bool texturesChanged = true;
-
+    int currentIntervalstart;
     public void setAttributesToBeLoaded(List<attributesEnum> attributeList)
     {
 
@@ -158,8 +158,9 @@ public class AttributeArrayTextureController : MonoBehaviour
                     //find next smaller element (this is a naiv implementation)
                     foreach ((var s, var e, var path) in intervallsList)
                     {
-                        if (s <= step)
+                        if (s <= step && step<=e)
                         {
+                            currentIntervalstart = s;
                             Debug.Log("Loading " + path);
                             loadedAttributes[attr] = new(s, e, path);
                             break;
@@ -196,6 +197,7 @@ public class AttributeArrayTextureController : MonoBehaviour
 
     void setStep(int step)
     {
+        material.SetInteger("_step", step -currentIntervalstart);
         foreach (var pair in loadedAttributes)
         {
             if (!pair.Value.contains_step(step))
@@ -211,18 +213,18 @@ public class AttributeArrayTextureController : MonoBehaviour
     }
 
     public Texture2DArray arrayTex;
-    public List<int> attributesInArray=new();
+    public List<float> attributesInArray = new();
     private int arrayTextureWidth = 0;
     private Vector2 arrayTextureTexelSize;
     void makeArrayTexture()
     {
         attributesInArray.Clear();
-        
+
         if (loadedAttributes.Count == 0) { return; }
         var tex0 = loadedAttributes.Values.First().tex;
         arrayTextureWidth = tex0.width;
         arrayTextureTexelSize = tex0.texelSize;
-        
+
         arrayTex = new(tex0.width, tex0.height, loadedAttributes.Count, TextureFormat.RGBA32, false);
         arrayTex.filterMode = FilterMode.Point;
         arrayTex.wrapMode = TextureWrapMode.Repeat;
@@ -236,16 +238,28 @@ public class AttributeArrayTextureController : MonoBehaviour
         arrayTex.Apply();
     }
 
+    void bindShaderProperties(Material mat)
+    {
+        if (arrayTex && arrayTex.depth > 0)
+        {
+            mat.SetTexture("_attributesArrayTexture", arrayTex);
+            mat.SetInteger("_attributesArrayTextureWidth", arrayTextureWidth);
+            mat.SetVector("_attributesArrayTextureTexelSize", arrayTextureTexelSize);
+            float[] attributeIndices = new float[16];
+            attributesInArray.CopyTo(attributeIndices, 0);
+            mat.SetFloatArray("_attributeIndices", attributeIndices);
+            mat.SetInteger("_step", step -currentIntervalstart);
 
-
+        }
+    }
+    public Material material;
     private void FixedUpdate()
     {
-        if (texturesChanged) {
+        if (texturesChanged)
+        {
             makeArrayTexture();
-
-
+            bindShaderProperties(material);
             texturesChanged = false;
-        
         }
 
 

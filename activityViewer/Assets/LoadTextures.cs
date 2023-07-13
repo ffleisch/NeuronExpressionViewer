@@ -6,6 +6,12 @@ using UnityEngine;
 
 public class LoadTextures : MonoBehaviour
 {
+    //test function for extracting the encoded float from the color from the image
+    public static unsafe float ColorToFloat(Color c)
+    {
+        byte[] bytes = { (byte)(255 * c[0]), (byte)(255 * c[1]), (byte)(255 * c[2]), (byte)(255 * c[3]) };
+        return BitConverter.ToSingle(bytes);
+    }
 
     public Texture2D tex = null;
 
@@ -187,12 +193,6 @@ public class LoadTextures : MonoBehaviour
     }
 
 
-    //test function for extracting the encoded float from the color from the image
-    private static unsafe float ColorToFloat(Color c)
-    {
-        byte[] bytes = { (byte)(255 * c[0]), (byte)(255 * c[1]), (byte)(255 * c[2]), (byte)(255 * c[3]) };
-        return BitConverter.ToSingle(bytes);
-    }
 
     //load the approriate texture for a given step by iterating over the intervall list and returning the associated path
     private TextureWithInterval LoadTextureForStep(int step)

@@ -25,6 +25,7 @@ def calc_barycentric(pt, vert_a, vert_b, vert_c):
     return np.array([bary_alpha, bary_beta, bary_gamma])
 
 mesh_path="./pointclouds/test dae/blender_uv_mapped_voronoi.dae"
+#mesh_path="./pointclouds/neuron_voronoi_mapped.dae"
 base_name=os.path.splitext(os.path.basename(mesh_path))[0]
 mesh=cld.Collada(mesh_path)
 
@@ -40,12 +41,13 @@ vertices=geom.primitives[0].vertex
 
 my_tri=tri.Triangulation(uvx,uvy,triangles=uv_triangle_array)
 ax.triplot(my_tri,linewidth=0.5,alpha=1)
+plt.show()
+ax.triplot(my_tri,linewidth=0.5,alpha=1)
 
-t_size=2048
+t_size=512
 texture=np.zeros((t_size,t_size),dtype=int)
 
 my_tri=tri.Triangulation(uvx,uvy)
-
 
 
 bounding_boxes=np.vstack([np.min(uvx[uv_triangle_array],axis=1),np.min(uvy[uv_triangle_array],axis=1),np.max(uvx[uv_triangle_array],axis=1),np.max(uvy[uv_triangle_array],axis=1)]).transpose()
@@ -79,6 +81,8 @@ for i,x in enumerate(np.linspace(0,1,t_size)):
     for j,y in enumerate(np.linspace(0,1,t_size)):
         bb=aabbtree.AABB([(x,x),(y,y)])
         res=tree.overlap_values(bb)
+        if not res:
+            res=tree.overlap_values(aabbtree.AABB([(x,x),(y+1,y+1)]))
         for ind in res:
             t=uv_triangle_array[ind]
             #print(i,j,x,y)
@@ -100,6 +104,7 @@ print("done creating image")
 #plt.show()
 plt.imshow(image)
 plt.show()
+
 
 image_array = np.zeros(t_size*t_size * 4, dtype=np.uint8)
 

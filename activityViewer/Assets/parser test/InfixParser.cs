@@ -128,13 +128,15 @@ public class InfixParser : MonoBehaviour
             AddToken("Substraction", "-", TokenType.OPERATOR, Associativity.LEFT, 3, 2, 2);
             AddToken("Division", "/", TokenType.OPERATOR, Associativity.LEFT, 4, 2, 3);
             AddToken("Power", "^", TokenType.OPERATOR, Associativity.RIGHT, 6, 2, 4);
+            AddToken("Square Root", "sqrt", TokenType.FUNCTION, Associativity.NONE, 7, 1, 5);
+            AddToken("Equals", "==", TokenType.OPERATOR, Associativity.LEFT, 8, 2, 5);
             //AddToken("Modulus", "%", TokenType.OPERATOR, Associativity.LEFT, , 2, 3);
 
             AddToken("uv x", "uvx", TokenType.VALUE_ATTRIBUTE, Associativity.NONE, -2, 0, 0);
             AddToken("uv y", "uvy", TokenType.VALUE_ATTRIBUTE, Associativity.NONE, -3, 0, 0);
 
+            AddToken("neuron index", "index", TokenType.VALUE_ATTRIBUTE, Associativity.NONE, -5, 0, 0);
 
-            AddToken("Square Root", "sqrt", TokenType.FUNCTION, Associativity.NONE, 7, 1, 5);
             AddToken("Map Value", "map", TokenType.FUNCTION, Associativity.NONE, 20, 5, 5);
             AddToken("Clip to Range", "clip", TokenType.FUNCTION, Associativity.NONE, 21, 3, 5);
 

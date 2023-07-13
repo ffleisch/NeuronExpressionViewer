@@ -26,7 +26,7 @@ def mesh_points_sphere(points, normals,uvs=None):
     #mesh_out= o3d.geometry.TriangleMesh.create_from_point_cloud_alpha_shape(pcd_sphere,1)
 
     mesh_out.compute_vertex_normals()
-    o3d.visualization.draw_geometries([mesh_out], point_show_normal=False)
+    #o3d.visualization.draw_geometries([mesh_out], point_show_normal=False)
     mesh_out.vertices = o3d.utility.Vector3dVector(points)
     # mesh_large=mesh_large.filter_smooth_taubin(10)
     mesh_out.compute_vertex_normals()

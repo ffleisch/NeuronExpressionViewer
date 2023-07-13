@@ -2,4 +2,7 @@
     <ui:TextField picking-mode="Ignore" label="Expression" value="uvx" text="uvx" name="TextFieldExpression" />
     <ui:Label text="Status" display-tooltip-when-elided="true" name="LabelStatus" />
     <ui:GroupBox style="width: 400px;" />
+    <ui:Toggle label="Run" name="ToggleRun" />
+    <ui:SliderInt picking-mode="Ignore" label="Frame" value="0" high-value="10000" name="SliderIntFrame" />
+    <uie:EnumField label="Dataset" type="LoadTextures+dataSetsEnum, Assembly-CSharp" name="EnumFieldDataset" />
 </ui:UXML>

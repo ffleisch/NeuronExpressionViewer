@@ -10,6 +10,7 @@ Shader "Unlit/rpn_interpreter"
         _neuronMap("Map from surface to the neurons",2D) = "black"{}
 		_n_neurons("Number of Neurons",Integer)=50000
 		_step("Step",Integer)=0
+        _total_alpha("totoal aplha",Float)=1
         test_index("Test index",Integer)=0
     }
     SubShader
@@ -45,6 +46,9 @@ Shader "Unlit/rpn_interpreter"
             sampler2D _neuronMap;
 
             float4 _MainTex_ST;
+           
+            uniform float _total_alpha;
+            
             uniform float values[128];
             uniform float num_values;
             uniform float tokens[256];
@@ -70,8 +74,8 @@ Shader "Unlit/rpn_interpreter"
             float sampleStep(float attributeIndex,float index) {
                 uint intIndex = index+_n_neurons*_step;
 				uint width = _attributesArrayTextureWidth;
-				float x = _attributesArrayTextureTexelSize.x * (index % width);
-				float y = _attributesArrayTextureTexelSize.y * (width - (index / width) - 1);
+				float x = _attributesArrayTextureTexelSize.x * (intIndex % width);
+				float y = _attributesArrayTextureTexelSize.y * (width - (intIndex / width) - 1);
                 float4 col = UNITY_SAMPLE_TEX2DARRAY_LOD(_attributesArrayTexture, float3(x,y,attributeIndex),0);
 
                 //float col= UNITY_SAMPLE_TEX2DARRAY(_attributesArrayTexture,float3(,,attributeIndex))
@@ -123,7 +127,12 @@ Shader "Unlit/rpn_interpreter"
                         stack[stack_index] = sampleStep(values[value_index],floor(decodeFloat(tex2Dlod(_neuronMap,float4(inp.uv,0,0)))+0.5));
                         value_index++;
                     }else
-
+					if (token == -5) {
+						stack_index++;
+						stack[stack_index] = floor(decodeFloat(tex2Dlod(_neuronMap,float4(inp.uv,0,0)))+0.5);
+						value_index++;
+					}
+					else
                     if (token == 1) {//addition, take two value from the stack and put the result on top
                         stack[stack_index - 1] = stack[stack_index-1] + stack[stack_index];
                         stack_index -= 1;
@@ -154,7 +163,11 @@ Shader "Unlit/rpn_interpreter"
 					if (token == 7) {//square root
                         stack[stack_index] = sqrt(stack[stack_index]);
 					}else
-
+                    if (token == 8) {//equals
+                        stack[stack_index-1] = stack[stack_index]==stack[stack_index-1]?1:0;
+                        stack_index -= 1;
+                    }
+                    else
                     if (token == 20) {//map a value from one range to another map(x,inp_l,inp_h,outp_l,outp_h)
                         float x = stack[stack_index-4];
                         float i_l = stack[stack_index-3];
@@ -190,7 +203,9 @@ Shader "Unlit/rpn_interpreter"
 
                 }
                 //the final color is the top element of the stack
-                fixed4 col = colOut;//float4(stack[stack_index-1],0,0,1);
+                
+                float4 alpha_mask = float4(1, 1, 1, _total_alpha);
+                fixed4 col = colOut*alpha_mask;//float4(stack[stack_index-1],0,0,1);
 
 
 
