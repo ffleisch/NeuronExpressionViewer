@@ -71,7 +71,7 @@ public class AttributeArrayTextureController : MonoBehaviour
         public int start = -1;
         public int end = -1;
         public bool finishedLoading = false;
-        string path = "";
+        public string path = "";
 
         //check if a single step is encoded in this texture
         public bool contains_step(int step)
@@ -150,7 +150,7 @@ public class AttributeArrayTextureController : MonoBehaviour
 
         foreach (var attr in attributeList)
         {
-            if (!loadedAttributes.ContainsKey(attr))
+            if (!loadedAttributes.ContainsKey(attr)||!loadedAttributes[attr].contains_step(step))
             {
                 try
                 {
@@ -158,6 +158,7 @@ public class AttributeArrayTextureController : MonoBehaviour
                     //find next smaller element (this is a naiv implementation)
                     foreach ((var s, var e, var path) in intervallsList)
                     {
+                        Debug.Log("step");
                         if (s <= step && step<=e)
                         {
                             currentIntervalstart = s;
@@ -202,6 +203,7 @@ public class AttributeArrayTextureController : MonoBehaviour
         {
             if (!pair.Value.contains_step(step))
             {
+                Debug.Log("Step Outside Range");
                 setAttributesToBeLoaded(new List<attributesEnum>(loadedAttributes.Keys));
                 return;
             }
@@ -209,6 +211,7 @@ public class AttributeArrayTextureController : MonoBehaviour
     }
     void datasetChanged(dataSetsEnum newDataset)
     {
+        loadedAttributes.Clear();
         setAttributesToBeLoaded(new List<attributesEnum>(loadedAttributes.Keys));
     }
 
@@ -231,6 +234,7 @@ public class AttributeArrayTextureController : MonoBehaviour
         int i = 0;
         foreach (var pair in loadedAttributes)
         {
+            Debug.Log(pair.Value.path);
             attributesInArray.Add((int)pair.Key);
             arrayTex.SetPixels(pair.Value.tex.GetPixels(0), i, 0);
             i++;

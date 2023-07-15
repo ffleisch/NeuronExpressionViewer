@@ -4,5 +4,5 @@
     <ui:GroupBox style="width: 400px;" />
     <ui:Toggle label="Run" name="ToggleRun" />
     <ui:SliderInt picking-mode="Ignore" label="Frame" value="0" high-value="10000" name="SliderIntFrame" />
-    <uie:EnumField label="Dataset" type="LoadTextures+dataSetsEnum, Assembly-CSharp" name="EnumFieldDataset" />
+    <uie:EnumField label="Dataset" type="dataSetsEnum, Assembly-CSharp" name="EnumFieldDataset" />
 </ui:UXML>

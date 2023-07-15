@@ -57,7 +57,7 @@ pcl_closest.points = o3d.utility.Vector3dVector(c_points)
 line_indices = [(x, x + len(positions)) for x in range(len(positions))]
 
 pcl_ref = pcl
-iters = 1
+iters = 500
 max_len = 0.5
 for i in range(iters):
 
@@ -131,19 +131,19 @@ uvy=[]
 signs=[]
 for t in tris:
     points=c_points[t]-center
-    a=np.arccos(points[:,0]/np.linalg.norm(points,axis=1))/np.pi#np.arctan2(points[:,0],points[:,1])/(np.pi*2)+0.5
-    b=np.arctan2(points[:,1],points[:,2])/(np.pi*2)+0.5
+    a=np.arctan2(points[:,1],points[:,2])/(np.pi*2)+0.5
+    b=np.arccos(points[:,0]/np.linalg.norm(points,axis=1))/np.pi#np.arctan2(points[:,0],points[:,1])/(np.pi*2)+0.5
     #print(["(%f,%f)"%(x,y)for x,y in zip(a,b)])
     #sign_pre=np.dot(np.cross(points[2]-points[0],points[1]-points[0]),points[0])
-    sign=np.cross((a[2]-a[0],b[2]-b[0],0),(a[1]-a[0],b[1]-b[0],0))
+    sign=np.cross((a[1]-a[0],b[1]-b[0],0),(a[2]-a[0],b[2]-b[0],0))
     sign=sign[2]<0
     if sign:
-        b[b<0.5]+=1
+        a[a<0.5]+=1
     signs.append(sign)
     #if(sign):
     uvx.extend(a)
     uvy.extend(b)
-uv_map=np.hstack([uvx,uvy])
+uv_map=np.vstack([uvx,uvy]).transpose().flatten()
 
 #signs=np.asarray(signs).repeat(3).reshape((-1,3))
 #signs=["r" if x else "k" for x in signs]
@@ -165,16 +165,17 @@ print(uvs)
 
 vertex_source = cld.geometry.source.FloatSource("vertex", c_points.flatten(), ("X", "Y", "Z"))
 uv_source = cld.geometry.source.FloatSource("uv", uv_map.flatten(), ("U","V"))
-#normal_source = cld.geometry.source.FloatSource("normal", np.asarray(mesh.vertex_normals).flatten(), ("X", "Y", "Z"))
+neuron_source = cld.geometry.source.FloatSource("neuron-index", uvs.flatten(), ("U","V"))
+normal_source = cld.geometry.source.FloatSource("normal", np.asarray(mesh.vertex_normals).flatten(), ("X", "Y", "Z"))
 
-geom = cld.geometry.Geometry(new_mesh, "geometry0", "voronoi_spread_neurons", [vertex_source, uv_source])
+geom = cld.geometry.Geometry(new_mesh, "geometry0", "voronoi_spread_neurons", [vertex_source, uv_source,neuron_source,normal_source])
 input_list = cld.geometry.source.InputList()
 input_list.addInput(0, "VERTEX", "#vertex")
-#input_list.addInput(0, "NORMAL", "#normal")
+input_list.addInput(0, "NORMAL", "#normal")
 input_list.addInput(1, "TEXCOORD","#uv",set="0")
 # holds coded information for neuron and area information
-#input_list.addInput(0, "TEXCOORD0",
-#                    "#neuron-index-array")  # Pycollada currently only supports one texcoord input, so im nack to using the color in its place
+input_list.addInput(0, "TEXCOORD",
+                    "#neuron-index",set="1")  #set parameter maybe the solution # Pycollada currently only supports one texcoord input, so im nack to using the color in its place
 
 combined_indices=np.vstack([np.asarray(mesh.triangles).flatten(),uv_triangle_map.flatten()]).transpose().flatten()
 print(combined_indices)

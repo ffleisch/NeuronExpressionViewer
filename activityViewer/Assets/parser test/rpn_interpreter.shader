@@ -124,12 +124,12 @@ Shader "Unlit/rpn_interpreter"
 
 					if (token == -4) {
                         stack_index++;
-                        stack[stack_index] = sampleStep(values[value_index],floor(decodeFloat(tex2Dlod(_neuronMap,float4(inp.uv,0,0)))+0.5));
+                        stack[stack_index] = sampleStep(values[value_index],floor(fmod(decodeFloat(tex2Dlod(_neuronMap,float4(inp.uv,0,0)))+0.5,_n_neurons)));
                         value_index++;
                     }else
 					if (token == -5) {
 						stack_index++;
-						stack[stack_index] = floor(decodeFloat(tex2Dlod(_neuronMap,float4(inp.uv,0,0)))+0.5);
+						stack[stack_index] = floor(fmod(decodeFloat(tex2Dlod(_neuronMap,float4(inp.uv,0,0)))+0.5,_n_neurons));
 						value_index++;
 					}
 					else
@@ -165,6 +165,10 @@ Shader "Unlit/rpn_interpreter"
 					}else
                     if (token == 8) {//equals
                         stack[stack_index-1] = stack[stack_index]==stack[stack_index-1]?1:0;
+                        stack_index -= 1;
+                    }
+                    if (token == 9) {//modulo
+                        stack[stack_index-1] = fmod(stack[stack_index-1],stack[stack_index]);
                         stack_index -= 1;
                     }
                     else

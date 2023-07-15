@@ -43,8 +43,8 @@ public class whreMousePoint : MonoBehaviour
         Vector2 uv_pos = uvs[closest_index]/uv_tex.texelSize+new Vector2(0.5f,0.5f);
         Debug.Log(uv_pos);
         Debug.Log(uv_tex.isReadable);
-        var col=uv_tex.GetPixel((int)uv_pos.x,(int)uv_pos.y);
-        int index = (int)(LoadTextures.ColorToFloat(col)+0.5f);
+        var col=uv_tex.GetPixel((int)uv_pos.x,1-(int)uv_pos.y);
+        int index = (int)(LoadTextures.ColorToFloat(col)+0.5f)%50000;//todo make number neurons dynamic
         Debug.Log(index);
         foreach (Transform t in transform) { 
             var renderer=t.gameObject.GetComponent<Renderer>();//the child should be the mesh for the coneectivity

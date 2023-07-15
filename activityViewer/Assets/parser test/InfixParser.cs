@@ -130,6 +130,7 @@ public class InfixParser : MonoBehaviour
             AddToken("Power", "^", TokenType.OPERATOR, Associativity.RIGHT, 6, 2, 4);
             AddToken("Square Root", "sqrt", TokenType.FUNCTION, Associativity.NONE, 7, 1, 5);
             AddToken("Equals", "==", TokenType.OPERATOR, Associativity.LEFT, 8, 2, 5);
+            AddToken("Modulo", "%", TokenType.OPERATOR, Associativity.LEFT, 9, 2, 3);
             //AddToken("Modulus", "%", TokenType.OPERATOR, Associativity.LEFT, , 2, 3);
 
             AddToken("uv x", "uvx", TokenType.VALUE_ATTRIBUTE, Associativity.NONE, -2, 0, 0);
