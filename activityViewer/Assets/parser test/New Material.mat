@@ -60,13 +60,17 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _gradientTex:
+        m_Texture: {fileID: -2417523614627309858, guid: 31ce336a57ada0c4cbbacba7d6650015, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _neuronMap:
         m_Texture: {fileID: 2800000, guid: c7da819dbf31a2a4daa458acc2dd5fc2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints:
     - _n_neurons: 50000
-    - _step: -134
+    - _step: 90
     - test_index: 23
     m_Floats:
     - _BumpScale: 1

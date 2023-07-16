@@ -143,7 +143,7 @@ public class AttributeArrayTextureController : MonoBehaviour
     }
 
 
-    private bool texturesChanged = true;
+    public bool texturesChanged = true;
     int currentIntervalstart;
     public void setAttributesToBeLoaded(List<attributesEnum> attributeList)
     {

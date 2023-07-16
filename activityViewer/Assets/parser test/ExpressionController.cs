@@ -92,7 +92,11 @@ public class ExpressionController : MonoBehaviour
     {
         if (toggleRun.value)
         {
-            test.step += 1;
+            if (!test.texturesChanged)
+            {
+                test.step += 1;
+
+            }
         }
     }
 

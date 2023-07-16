@@ -144,6 +144,7 @@ public class InfixParser : MonoBehaviour
 
             AddToken("Output single Value", "col", TokenType.FUNCTION, Associativity.LEFT, 100, 1, 5);//check what exact precedence is good for functions
             AddToken("Output RGB", "rgb", TokenType.FUNCTION, Associativity.LEFT, 101, 3, 5);
+            AddToken("Output Gradient", "grad", TokenType.FUNCTION, Associativity.LEFT, 102, 1, 5);
 
         }
 

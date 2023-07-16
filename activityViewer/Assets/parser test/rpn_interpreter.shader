@@ -6,7 +6,7 @@ Shader "Unlit/rpn_interpreter"
     Properties
     {
         _attributesArrayTexture("Attributes Array Texture", 2DArray) = "" {}
-        _MainTex ("Texture", 2D) = "white" {}
+        _gradientTex ("Gradient Texture", 2D) = "white" {}
         _neuronMap("Map from surface to the neurons",2D) = "black"{}
 		_n_neurons("Number of Neurons",Integer)=50000
 		_step("Step",Integer)=0
@@ -42,7 +42,7 @@ Shader "Unlit/rpn_interpreter"
                 //float4 col: COLOR;
             };
 
-            sampler2D _MainTex;
+            sampler2D _gradientTex;
             sampler2D _neuronMap;
 
             float4 _MainTex_ST;
@@ -200,9 +200,9 @@ Shader "Unlit/rpn_interpreter"
                         stack_index -= 3;
                     }else
                     if (token == 102) {//sample a gradient                    
-                        
+                        colOut = tex2Dlod(_gradientTex, float4(stack[stack_index],0, 0, 0));
                     }
-
+        
 
 
                 }
