@@ -6,9 +6,10 @@ Shader "Unlit/edgeShaderTextured"
 		_pixelWidth("Line Width",Float) = 5
 		_n_index("selected neuron",Integer)=0
 		_texture("Connection Texture",2D) = "white" {}
-		_connection_offset("Offset of Connections to Neuron",Float)=0
+		_connection_offset("Offset of Connections to Neuron",Range(0.0,5))=0
 		_color_axons("Color of Axons",Color)=(1,1,1,1)
 		_color_dendrites("Color of Dendrites",Color)=(1,1,0,1)
+		_color_selected("Color of Selected Neuron",Color)=(1,0,0,1)
 	}	
 		SubShader
 	{
@@ -43,6 +44,7 @@ Shader "Unlit/edgeShaderTextured"
 			struct g2f {
 				float4 vertex : POSITION;
 				float2 uv:TEXCOORD0;
+				float  selectionInfo : TANGENT;
 			};
 
 			uniform float _pixelWidth;
@@ -50,6 +52,7 @@ Shader "Unlit/edgeShaderTextured"
 			uniform int _n_index;
 			uniform float4 _color_axons;
 			uniform float4 _color_dendrites;
+			uniform float4 _color_selected;
 			uniform float _connection_offset;
 			sampler2D _texture;
 			//[maxvertexcount(4)]
@@ -62,67 +65,73 @@ Shader "Unlit/edgeShaderTextured"
 				if (!((i1==_n_index)||(i2==_n_index))) {
 					return;
 				}
+
+				bool direction=false;
+				if (i1 == _n_index) {
+					direction = true;
+				}
+
 				float2 d1 = input[0].vertex.xy - input[1].vertex.xy;//input[i].mixedAdjacency.xy-input[i].vertex.xy;
 
 				d1 *= _ScreenParams.xy;
 
-				float2 normal = _pixelWidth * normalize(float2(-d1.y,d1.x)) / _ScreenParams.xy;
+				float2 normal = _pixelWidth * normalize(float2(-d1.y,d1.x));
 
-				float4 corners[4];
 
-				float4 start = input[0].vertex;
-				float4 end = input[1].vertex;
-				corners[0] = float4(start.xy/start.w + normal,1,1);
-				corners[1] = float4(start.xy/start.w - normal,1,1);
-				corners[2] = float4(end.xy/start.w + normal,1,1);
-				corners[3] = float4(end.xy/start.w - normal,1,1);
-	
+				float2 start = input[0].vertex.xy/input[0].vertex.w;
+				float2 end = input[1].vertex.xy/input[1].vertex.w;
 
-				float4 minor= corners[1]-corners[0];
-				float4 major = corners[2] - corners[0];
-				float major_length = length(major);
+				float len = length((end - start)*_ScreenParams.xy);
+				float ratio = length(normal) / len;
+				//float4 minor= corners[1]-corners[0];
+				//float4 major = corners[2] - corners[0];
+				//float major_length = length(major);
 				
-				float offset_ratio = _connection_offset;
-				float line_ratio = length(minor) / (major_length*2);
+				float offset_ratio = _connection_offset*ratio;
+				//float line_ratio =length(minor) / (major_length*2);
 
 				if (offset_ratio > 0.25) {
 					offset_ratio = 0.25;
 				}
 
 				float a = offset_ratio;
-				float b = a+line_ratio;
-				float d = 1-offset_ratio;
-				float c = d-line_ratio;
+				float b = a+ratio;
+				float d = 1 - offset_ratio;
+				float c = d-ratio;// d - line_ratio;
 				if (b > c) {
 					b = 0.5;
 					c = 0.5;
 				
 				}
+				
+
+				float2 major = end - start;
 
 				g2f vertices[8];
-				vertices[0].vertex = corners[0]+a*major;
+				vertices[0].vertex = float4(start+a*major+normal/_ScreenParams.xy,1,1);
 				vertices[0].uv = float2(0,0);
-				vertices[1].vertex = corners[1]+a*major;
+				vertices[1].vertex = float4(start+a*major-normal/_ScreenParams.xy,1,1);
 				vertices[1].uv = float2(1,0);
 
 
-				vertices[2].vertex = corners[0]+b*major;
+				vertices[2].vertex = float4(start+b*major+normal/_ScreenParams.xy,1,1);
 				vertices[2].uv = float2(0,0.5);
-				vertices[3].vertex = corners[1]+b*major;
+				vertices[3].vertex = float4(start+b*major-normal/_ScreenParams.xy,1,1);
 				vertices[3].uv = float2(1,0.5);
 
-				vertices[4].vertex = corners[0]+c*major;
+				vertices[4].vertex = float4(start+c*major+normal/_ScreenParams.xy,1,1);
 				vertices[4].uv = float2(0,0.5);
-				vertices[5].vertex = corners[1]+c*major;
+				vertices[5].vertex = float4(start+c*major-normal/_ScreenParams.xy,1,1);
 				vertices[5].uv = float2(1,0.5);
 
 
-				vertices[6].vertex = corners[0]+d*major;
+				vertices[6].vertex = float4(start+d*major+normal/_ScreenParams.xy,1,1);
 				vertices[6].uv = float2(0,1);
-				vertices[7].vertex = corners[1]+d*major;
+				vertices[7].vertex = float4(start+d*major-normal/_ScreenParams.xy,1,1);
 				vertices[7].uv = float2(1,1);
 
 				for (int i = 0; i < 8; i++) {
+					vertices[i].selectionInfo = float(direction);
 					triStream.Append(vertices[i]);
 				}
 
@@ -145,10 +154,15 @@ Shader "Unlit/edgeShaderTextured"
 				// sample the texture
 				// apply fog
 				float4 col = tex2Dlod(_texture,float4(i.uv,0,0));
-				if (col[3] <0.5) {
-					
+				if (i.selectionInfo) {
+					col = col[0] * _color_axons + col[1]* _color_dendrites * _color_selected;
+				
 				}
-				return col[0]*_color_axons+col[1]*_color_dendrites;
+				else {
+					col = col[0]* _color_axons * _color_selected + col[1] * _color_dendrites;
+				
+				}
+				return col;
 			}
 			ENDCG
 		}
