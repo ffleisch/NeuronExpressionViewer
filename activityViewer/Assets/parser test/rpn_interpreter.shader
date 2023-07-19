@@ -16,6 +16,7 @@ Shader "Unlit/rpn_interpreter"
     SubShader
     {
         Tags { "RenderType"="Opaque" }
+		Blend SrcAlpha OneMinusSrcAlpha
         LOD 100
 
         Pass

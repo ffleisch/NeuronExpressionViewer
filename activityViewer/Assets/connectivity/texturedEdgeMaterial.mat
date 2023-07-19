@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: edgeMaterial
-  m_Shader: {fileID: 4800000, guid: 77d74fefd42786044aaa51a819fb3d95, type: 3}
+  m_Name: texturedEdgeMaterial
+  m_Shader: {fileID: 4800000, guid: 78ee28fdabd263444ae9c1d5624a28ac, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -56,6 +56,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _texture:
+        m_Texture: {fileID: 2800000, guid: 98093499c0c2f9d4983d18e5d057936d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints:
     - _n_index: 0
     m_Floats:
@@ -75,9 +79,12 @@ Material:
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
-    - _pixelWidth: 3.31
+    - _connection_offset: 0.1
+    - _pixelWidth: 50.72
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _col: {r: 0, g: 0, b: 0, a: 1}
+    - _color_axons: {r: 0.4245283, g: 0.4245283, b: 0.4245283, a: 1}
+    - _color_dendrites: {r: 0, g: 1, b: 0.16342616, a: 1}
   m_BuildTextureStacks: []
