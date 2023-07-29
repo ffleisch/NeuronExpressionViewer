@@ -133,6 +133,12 @@ Shader "Unlit/rpn_interpreter"
 						stack[stack_index] = floor(fmod(decodeFloat(tex2Dlod(_neuronMap,float4(inp.uv,0,0)))+0.5,_n_neurons));
 						value_index++;
 					}
+                    if (token == -6) {
+						stack_index++;
+						stack[stack_index] = floor((decodeFloat(tex2Dlod(_neuronMap,float4(inp.uv,0,0)))+0.5)/_n_neurons);
+						value_index++;
+					}
+
 					else
                     if (token == 1) {//addition, take two value from the stack and put the result on top
                         stack[stack_index - 1] = stack[stack_index-1] + stack[stack_index];

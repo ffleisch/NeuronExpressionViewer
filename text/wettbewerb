@@ -1,0 +1,62 @@
+
+
+
+
+
+this is a tool for the intreractive exploration of neuronal network simulations of plasticity changes in the human brain for the scivis contest 2023. for this purpose we used the unity game engine. 
+-unity good for vis cause easy to implement
+-3d
+
+First the data had to be preparesd for further processing. 
+the pandas library was used ot read the csv files and save the data in a binary numpy array file per attribute. This allows for faster loading in subsequent steps.
+
+We also need a mesh of the neuron positions, because we weant to show the attributes on a surface. this is problematic because we only have given a pointclouid of positions.
+
+The positions on the pointcloud are badly conditioned for meshing and for display purposes. This is because the 50000 neurons are grouped into 5000 small clusters of 10 neurons. This is due to the neuron positions being based on 5000 positions. These were extended to ten times that by adding 10 points scttered in a very asmall radius arounfd each point. This leads to meshing algortihmws failing. We spread these points out. This is achieved in two stages. First the center of each cluster is determined and this mesh of 5000 vertices is meshed. Using this now we can estimate the normals for each cluster. We can now the points of ech cluster into the normal plane around the center. Each cluster is now spread out from the cluster center away. 
+
+
+
+We use an iterative process inspired by Lloyd's algorithm to spread the vertices out. We repeatedly project all points onto a guiding mesh and nudge them towards the centroid of their respective voronoi cell.
+From the 5000 vertices rough mesh a smooth mesh is created in blender using subdivison and smoothing operations. This will guide the shape of our final mesh. The Open3d library provides functionality for determining the closest point on a mesh for any given point. The voronoi tesselation is calculated using the scipy library. the output does not contains the centroid of the voronoi cells, so it is approximated by the average of the vertices of the cell. To keep the points from moving to far away in one step and getting projected onto an unreleated part of the mesh, the movement is constrained to the normal plane and limite in magnuitude.
+
+For the tranfer to unity the Collada File formatz was chosen. 
+
+The attributes were encoded into images in order to allow for allow working with unitys texture and shader system. The Attributes were encoded into sperate Series of images. For this each 32bit float value can be represented as a 32bit ARGB color value. the Png format was chosen, because it compresses losslesly and allows for fast decoding. We are able to fit 83 frames of a single attribute into a single 2048 by 2048 texture. The range of frames contained in any texture is given by the filename.
+
+
+For the rendering in Unity we need a way to map the surface of the mesh to the index of a given neuron. For this a uv map was calculated. We basically impelemented the sphrerical projection from Blender for this purpose. For each triangle of the mesh its uv coordinates are given by the longitude and latitude of the vertices projected onto the unit sphere around the center of mass. We detect triangles at the seam of longitude by checking the chirality of the resulting triangles and adjust the coordinates of said triangles by adding 1 in the y direction, eliminating any overlap.
+
+Now we can create a high resolution texture which maps the surface of our map to the index of the closest neuron and its respective area. This texture is rendered in python althoug it could be accomplished in faster more alegant way with a specialized shader. First we build a Axis aligned Bounding Box Tree with the aabbtreee library. Now we can query for each point of the texture the containing triangle in the uv map and use barycentric intrpolation to find the point in object space corresponding to the pixel. We now use a scipy kdtree to find the closest neuron and encode its index and area into the texture. The Uv Map is save withind the Collada .dae format and the texture is currently added by hand in unity.
+
+The connectomes were also parsed from the csv files and save again using the networkx Pyhton library.
+We use other special meshes to represent the Connectome. This allows us to use a shader to quickly and easily render the connections. The Collada Format spcifies and allows to export lines as geometry, but the Unity asset importer removes all edges and degenerate Triangles which is why each connection is encoded as a triangle of the vertices (a,b,b+1). During the encoding step we also determine the difference to the previous steps connectome and encode in a texture coordinate channel of the mesh wether the respective triangle represents a new, a persistant or a deleted connection.
+
+
+To allow for a greter flexibility of how to display the attributes in Unity we chose to implement a method for parsing an infix expression and evaluating it in real time for each pixel. For this the given expression is first tokenized. This is done by splititing it along the string prepresentatins of float values found by a regex query. Th e reamining parts are split again wit ha regex query for all possible keywords. For each part a token is created. Now we translate the infix notation into a postfix notation with the shunting yard algorithm.
+
+From the parsed list of tokens we can extract what attributes will be needed for this calculation. These are loaded from disk and put into an array texture. 
+ 
+
+The postfix or also called reverse polish notation can be easily eravluated in the shader. We pass the shader an array of tokens to be executed, a stack of fixed values to be used and a map from the attribute index to the array texture.
+For this each tokewn is assigned an integer identifier,so we can check for in the shader. The values are stored in a stack and the value identifier takes the top value of the value stack and places it on the main stack for further evaluation.
+The attributes are sampled from an array texture. For this first we sample the index map to determine the relevant neuron index. Now we can use this index and the given frameindex to sample the array texture. The resulting color is reinterpreted as a float value and placed on the stack.
+
+-how color go out
+
+
+
+It is very easy to extend this system with more precomputed attributes as well as functions for display and evaluation in the shader.
+
+
+
+
+
+
+
+
+
+
+
+
+
+

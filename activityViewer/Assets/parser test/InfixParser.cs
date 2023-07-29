@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-public class InfixParser : MonoBehaviour
+public class InfixParser
 {
 
 
@@ -137,6 +137,7 @@ public class InfixParser : MonoBehaviour
             AddToken("uv y", "uvy", TokenType.VALUE_ATTRIBUTE, Associativity.NONE, -3, 0, 0);
 
             AddToken("neuron index", "index", TokenType.VALUE_ATTRIBUTE, Associativity.NONE, -5, 0, 0);
+            AddToken("neuron Area", "area", TokenType.VALUE_ATTRIBUTE, Associativity.NONE, -6, 0, 0);
 
             AddToken("Map Value", "map", TokenType.FUNCTION, Associativity.NONE, 20, 5, 5);
             AddToken("Clip to Range", "clip", TokenType.FUNCTION, Associativity.NONE, 21, 3, 5);
@@ -156,7 +157,7 @@ public class InfixParser : MonoBehaviour
             {
                 var s = AttributeUtils.attributeNames[attribute];
                 var identifier = AttributeUtils.attributeIdentifiers[attribute];
-                Debug.Log(s);
+                //Debug.Log(s);
                 AddToken(s, identifier, TokenType.VALUE_ATTRIBUTE, Associativity.NONE, -4, 0, 0,(int)attribute);
             }
 
@@ -186,9 +187,9 @@ public class InfixParser : MonoBehaviour
         //split along the floats
         var floatParts = Regex.Split(input, float_regex);
 
-        Debug.Log(input);
+        //Debug.Log(input);
         string tokenRegexString = Token.makeTokenRegexString();
-        Debug.Log(tokenRegexString);
+        //Debug.Log(tokenRegexString);
 
 
         //cheks for each part, wether it is a float
@@ -199,7 +200,7 @@ public class InfixParser : MonoBehaviour
             if (float.TryParse(floatPart, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float result))
             {
                 //if it is a  float, make a new value token and add it to the output
-                Debug.Log("Float " + result.ToString());
+                //Debug.Log("Float " + result.ToString());
                 output.Add(new Token(result));
             }
             else
@@ -212,14 +213,14 @@ public class InfixParser : MonoBehaviour
                         if (Token.tokensByIdentifier.ContainsKey(tokenMatch))
                         {
                             var t = Token.tokensByIdentifier[tokenMatch];
-                            Debug.Log(string.Format("Token {0}", t.name));
+                            //Debug.Log(string.Format("Token {0}", t.name));
                             output.Add(t);
                         }
                         else
                         {
                             //could not find that part in the token dict
                             //unknown identifier
-                            Debug.LogError(string.Format("Could not find Token for {0}", tokenMatch));
+                            Debug.LogError(string.Format("Could not find Token for \"{0}\"", tokenMatch));
                         }
                     }
                 }
@@ -302,7 +303,7 @@ public class InfixParser : MonoBehaviour
         {
             output.Add(operatorStack.Pop());
         }
-        Debug.Log("rpn:");
+        //Debug.Log("rpn:");
         string sRpn = "";
         foreach (var t in output)
         {
@@ -315,7 +316,7 @@ public class InfixParser : MonoBehaviour
                 sRpn += t.identifier;
             }
         }
-        Debug.Log(sRpn);
+        //Debug.Log(sRpn);
         return output;
     }
 
@@ -360,8 +361,8 @@ public class InfixParser : MonoBehaviour
         {
             tokens_string += " " + f.ToString();
         }
-        Debug.Log(values_string);
-        Debug.Log(tokens_string);
+        //Debug.Log(values_string);
+        //Debug.Log(tokens_string);
 
         return (values, shaderTokens,attibutesNeeded);
     }

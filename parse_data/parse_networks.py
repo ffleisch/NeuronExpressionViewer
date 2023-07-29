@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 import networkx as nx
-dataset = "viz-stimulus"
+dataset = "viz-disable"
 n_neurons = 50000
 n_steps = 10000
 

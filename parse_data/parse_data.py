@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import os
 
-dataset = "viz-stimulus"
+dataset = "viz-calcium"
 
 n_neurons = 50000
 n_steps = 10000

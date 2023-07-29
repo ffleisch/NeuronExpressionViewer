@@ -4,6 +4,8 @@ using System.IO;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using System.Linq;
+using AsyncTextureImport;
+
 public class AttributeArrayTextureController : MonoBehaviour
 {
 
@@ -57,7 +59,7 @@ public class AttributeArrayTextureController : MonoBehaviour
 
 
     Dictionary<attributesEnum, TextureContainer> loadedAttributes = new();
-    private void Start()
+    public void init()
     {
         readAvailableFilenames();
     }
@@ -72,28 +74,47 @@ public class AttributeArrayTextureController : MonoBehaviour
         public int end = -1;
         public bool finishedLoading = false;
         public string path = "";
-
+        AttributeArrayTextureController parent;
         //check if a single step is encoded in this texture
         public bool contains_step(int step)
         {
             return start <= step && step < end;
         }
-        public TextureContainer(int start, int end, string path)
+        public TextureContainer(int start, int end, string path, AttributeArrayTextureController parent)
         {
             this.start = start;
             this.end = end;
             this.path = path;
+            this.parent = parent;
 
-            tex = LoadTextures.LoadPNG(path);
+            //tex = LoadTextures.LoadPNG(path);
+            //finishedLoading=true;
 
-            this.finishedLoading = true;
-
+            parent.startTextureContainerCoroutine(this);
         }
+
 
 
     }
 
+    void startTextureContainerCoroutine(TextureContainer cont)
+    {
 
+        StartCoroutine(nameof(loadTexAsync), cont);
+
+    }
+    IEnumerator loadTexAsync(TextureContainer texContainer)
+    {
+
+        TextureImporter importer = new();
+        yield return importer.ImportTexture(texContainer.path, FREE_IMAGE_FORMAT.FIF_PNG,1);
+
+
+        texContainer.tex = importer.texture;
+        texContainer.finishedLoading = true;
+        yield return null;
+
+    }
 
 
 
@@ -139,7 +160,7 @@ public class AttributeArrayTextureController : MonoBehaviour
                 }
             }
         }
-        Debug.Log(avavilabeFiles);
+        //Debug.Log(avavilabeFiles);
     }
 
 
@@ -147,10 +168,9 @@ public class AttributeArrayTextureController : MonoBehaviour
     int currentIntervalstart;
     public void setAttributesToBeLoaded(List<attributesEnum> attributeList)
     {
-
         foreach (var attr in attributeList)
         {
-            if (!loadedAttributes.ContainsKey(attr)||!loadedAttributes[attr].contains_step(step))
+            if (!loadedAttributes.ContainsKey(attr) || !loadedAttributes[attr].contains_step(step))
             {
                 try
                 {
@@ -158,12 +178,12 @@ public class AttributeArrayTextureController : MonoBehaviour
                     //find next smaller element (this is a naiv implementation)
                     foreach ((var s, var e, var path) in intervallsList)
                     {
-                        Debug.Log("step");
-                        if (s <= step && step<=e)
+                        //Debug.Log("step");
+                        if (s <= step && step <= e)
                         {
                             currentIntervalstart = s;
                             Debug.Log("Loading " + path);
-                            loadedAttributes[attr] = new(s, e, path);
+                            loadedAttributes[attr] = new(s, e, path, this);
                             break;
                         }
                     }
@@ -188,17 +208,17 @@ public class AttributeArrayTextureController : MonoBehaviour
         foreach (var t in loadedAttributes.Values)
         {
             testList.Add(t.tex);
-            Debug.Log(t);
+            //Debug.Log(t);
         }
         texturesChanged = true;
 
-        Debug.Log("ayyyy");
+        //Debug.Log("ayyyy");
     }
     public List<Texture2D> testList = new();
 
     void setStep(int step)
     {
-        material.SetInteger("_step", step -currentIntervalstart);
+        material.SetInteger("_step", step - currentIntervalstart);
         foreach (var pair in loadedAttributes)
         {
             if (!pair.Value.contains_step(step))
@@ -211,8 +231,10 @@ public class AttributeArrayTextureController : MonoBehaviour
     }
     void datasetChanged(dataSetsEnum newDataset)
     {
+        var toBeLoaded=new List<attributesEnum>(loadedAttributes.Keys);
         loadedAttributes.Clear();
-        setAttributesToBeLoaded(new List<attributesEnum>(loadedAttributes.Keys));
+        setAttributesToBeLoaded(toBeLoaded);
+        Debug.Log("oops");
     }
 
     public Texture2DArray arrayTex;
@@ -234,9 +256,10 @@ public class AttributeArrayTextureController : MonoBehaviour
         int i = 0;
         foreach (var pair in loadedAttributes)
         {
-            Debug.Log(pair.Value.path);
+            //Debug.Log(pair.Value.path);
             attributesInArray.Add((int)pair.Key);
             arrayTex.SetPixels(pair.Value.tex.GetPixels(0), i, 0);
+            
             i++;
         }
         arrayTex.Apply();
@@ -252,7 +275,7 @@ public class AttributeArrayTextureController : MonoBehaviour
             float[] attributeIndices = new float[16];
             attributesInArray.CopyTo(attributeIndices, 0);
             mat.SetFloatArray("_attributeIndices", attributeIndices);
-            mat.SetInteger("_step", step -currentIntervalstart);
+            mat.SetInteger("_step", step - currentIntervalstart);
 
         }
     }
@@ -261,6 +284,15 @@ public class AttributeArrayTextureController : MonoBehaviour
     {
         if (texturesChanged)
         {
+            foreach (var x in loadedAttributes.Values)
+            {
+                if (!x.finishedLoading)
+                {
+                    Debug.Log("still loading textures");
+                    return;
+                }
+            }
+
             makeArrayTexture();
             bindShaderProperties(material);
             texturesChanged = false;

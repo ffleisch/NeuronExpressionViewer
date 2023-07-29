@@ -1,9 +1,13 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:TextField picking-mode="Ignore" label="Expression" value="col(fired)" text="col(fired)" name="TextFieldExpression" />
-    <ui:Label text="Status" display-tooltip-when-elided="true" name="LabelStatus" />
-    <ui:GroupBox style="width: 400px;" />
-    <ui:Toggle label="Run" name="ToggleRun" />
-    <ui:SliderInt picking-mode="Ignore" label="Frame" value="0" high-value="10000" name="SliderIntFrame" />
-    <uie:EnumField label="Dataset" type="dataSetsEnum, Assembly-CSharp" name="EnumFieldDataset" />
-    <ui:DropdownField label="Gradient" index="-1" choices="System.Collections.Generic.List`1[System.String]" />
+    <ui:GroupBox style="width: 512px;">
+        <ui:TextField picking-mode="Ignore" label="Expression" value="col(fired)" text="col(fired)" name="TextFieldExpression" />
+        <ui:Label text="Status" display-tooltip-when-elided="true" name="LabelStatus" />
+        <ui:GroupBox style="width: 400px;" />
+        <ui:Toggle label="Run" name="ToggleRun" />
+        <ui:SliderInt picking-mode="Ignore" label="Frame" value="0" high-value="10000" name="SliderIntFrame" />
+        <uie:EnumField label="Dataset" type="dataSetsEnum, Assembly-CSharp" name="EnumFieldDataset" />
+        <ui:GroupBox>
+            <ui:DropdownField label="Gradient" index="-1" choices="System.Collections.Generic.List`1[System.String]" />
+        </ui:GroupBox>
+    </ui:GroupBox>
 </ui:UXML>
