@@ -95,7 +95,7 @@ def create_neuron_mesh(path, path_last, dataset):
     print(graph)
 
 
-dataset = "viz-calcium"
+dataset = "viz-stimulus"
 
 dir_path = os.path.join(".", "parsed_data", dataset, "network")
 

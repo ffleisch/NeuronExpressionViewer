@@ -60,6 +60,24 @@ namespace AsyncTextureImport
             this.texture = CreateTexture(task.Result);
         }
 
+
+        //this allows me to set an array texture directly with the raw data
+        public RawTextureData rawData=null;
+        public IEnumerator ImportOnlyData(string texturePath, FREE_IMAGE_FORMAT format, int mipLevels = -1)
+        {
+            this.texture = null;
+
+            Task<RawTextureData> task = Task.Run(() => { return ImportTextureFromFile(texturePath, format, mipLevels); });
+            while (!task.IsCompleted)
+                yield return null;
+            rawData = task.Result;
+        }
+
+
+
+
+
+
         private RawTextureData ImportTextureFromFile(string texturePath, FREE_IMAGE_FORMAT format, int mipLevels)
         {
             if(!File.Exists(texturePath))
@@ -162,14 +180,14 @@ namespace AsyncTextureImport
             if (texData == null)
                 return null;
 
-            Texture2D tex = new Texture2D(texData.width, texData.height, TextureFormat.RGBA32, texData.mipLevels, false);
+            Texture2D tex = new Texture2D(texData.width, texData.height, TextureFormat.BGRA32, texData.mipLevels, false);
             tex.filterMode = FilterMode.Point;
             tex.LoadRawTextureData(texData.data);
             tex.Apply(false, true);
             return tex;
         }
 
-        private class RawTextureData
+        public class RawTextureData
         {
             public byte[] data;
             public int mipLevels;

@@ -92,16 +92,18 @@ for i in range(iters):
     c_points = c_points + movement_vector
     c_points, c_normals = project_vertices(c_points)
 
-    lines = o3d.t.geometry.LineSet()
-    lines.point.positions = o3d.core.Tensor(np.vstack((c_start_flattened, c_points)))
-    lines.line.indices = o3d.core.Tensor(line_indices)
+
 
     print("iteration:", i)
     if (i == iters - 1):
+        lines = o3d.t.geometry.LineSet()
+        lines.point.positions = o3d.core.Tensor(np.vstack((c_start_flattened, c_points)))
+        lines.line.indices = o3d.core.Tensor(line_indices)
+
         pcl_current = o3d.geometry.PointCloud()
         pcl_current.points = o3d.utility.Vector3dVector(c_points)
         pcl_current.normals = o3d.utility.Vector3dVector(c_normals)
-        #o3d.visualization.draw_geometries([pcl_current, lines.to_legacy()], point_show_normal=False)
+        o3d.visualization.draw_geometries([pcl_current, lines.to_legacy()], point_show_normal=False)
 
 pcl_out = o3d.geometry.PointCloud()
 pcl_out.points = o3d.utility.Vector3dVector(c_points)
@@ -109,6 +111,13 @@ pcl_out.normals = o3d.utility.Vector3dVector(c_normals)
 o3d.io.write_point_cloud("pointclouds/neuron_positions_voronoi_spread.pcd", pcl_out)
 
 mesh = mesh_points_sphere(c_points, c_normals)
+
+
+
+voronoi_wire=o3d.geometry.LineSet.create_from_triangle_mesh(mesh)
+o3d.visualization.draw_geometries([voronoi_wire])
+
+
 
 #o3d.visualization.draw_geometries([mesh])
 

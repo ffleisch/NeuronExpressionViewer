@@ -1,0 +1,48 @@
+Abstract:
+
+
+
+
+date preparation
+	-erzeugung meshes
+	-voronoi ausbreitung
+	-rendern der attribute ind bilder
+	-meshes für verbindungen
+	
+unity:
+	-parsen der ausdürcke
+	-verwaltung der array textures
+	-shader fürs interpretiren der ausdrücke
+	-shader fürs anzeigen der verbindungen
+	
+benutzbarkeit:
+	-calcium soll differenz
+	-zusammenhang zwischen verschiedenen attributen darstellen
+	-absicht:
+		-in echtzeit
+		-interaktivität
+
+ausblick
+	-alles was man noch machen könnte
+	-interfaace rudimentär
+	-funktionen vordefinieren (expressions speichenr laden)
+	-more attributes precalced
+	-calc time sreies for expressions
+	-colors for connnections
+	-
+	
+	
+	
+Todo:
+	-ladebalken(ding)
+	-titel?
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

@@ -3,9 +3,7 @@
 
 
 
-this is a tool for the intreractive exploration of neuronal network simulations of plasticity changes in the human brain for the scivis contest 2023. for this purpose we used the unity game engine. 
--unity good for vis cause easy to implement
--3d
+this is a tool for the intreractive exploration of neuronal network simulations of plasticity changes in the human brain for the scivis contest 2023. for this purpose we used the unity game engine. Unity is usually used for the development of games but lends itself for the visualization of scientific data. It is 
 
 First the data had to be preparesd for further processing. 
 the pandas library was used ot read the csv files and save the data in a binary numpy array file per attribute. This allows for faster loading in subsequent steps.
@@ -41,14 +39,22 @@ The postfix or also called reverse polish notation can be easily eravluated in t
 For this each tokewn is assigned an integer identifier,so we can check for in the shader. The values are stored in a stack and the value identifier takes the top value of the value stack and places it on the main stack for further evaluation.
 The attributes are sampled from an array texture. For this first we sample the index map to determine the relevant neuron index. Now we can use this index and the given frameindex to sample the array texture. The resulting color is reinterpreted as a float value and placed on the stack.
 
--how color go out
+There are some special functions implemented to produce a color output. It is possible to either sample a gradient texture, output the last value from black to white or output three values as a rgb value.
+
+For the rendering of the connectome a geometry shader was used. We already transform the vertices into clipspace in the vertex shader. Now can directly create a rectangle flat in front of the camera. A Texture was drawn for the Axons and Dendrites. It it is designesd such that it can be stretched down the middle indefinitely ty allow for arbritrily long connections. The connections are offset from the actual neurons positin as to not overlap, unless the total length of hte connection would make it impossible to fit outside. The axon and dendrite parts of the texture  can be colored independently by the shader.
 
 
 
-It is very easy to extend this system with more precomputed attributes as well as functions for display and evaluation in the shader.
+Ausblick:
+
+This project is more of a rough prototype and there are many more possible extensions. 
+
+It is very easy to extend this system with more precomputed attributes as well as functions for display and evaluation in the shader. One possible extension is to precalculate other Attbributes such as sums over specific sets of neurons. Thesde could easily be added to the parser and used in expressions. Another use for the expressions and the easily interpreted postfix notation would be to evaluate these for time series to make comparisons more easily. the Postfix Notation can also be evaluated in the Connectonme Shader and display expressions in how they relate to connections. A big advantage of the expression parser is that it very easily can be expanded.
 
 
 
+
+There still are a lot of features which can be implemented. this includes but is not limited to saving and defining expressions as functions, a more sphisticated user interface, precalculating and making available sum expressions over sets of neurons, evaluating expressions as time series and coloring connections using expressions. 
 
 
 

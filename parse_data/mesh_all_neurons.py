@@ -26,7 +26,7 @@ def mesh_points_sphere(points, normals,uvs=None):
     #mesh_out= o3d.geometry.TriangleMesh.create_from_point_cloud_alpha_shape(pcd_sphere,1)
 
     mesh_out.compute_vertex_normals()
-    #o3d.visualization.draw_geometries([mesh_out], point_show_normal=False)
+    o3d.visualization.draw_geometries([mesh_out], point_show_normal=False)
     mesh_out.vertices = o3d.utility.Vector3dVector(points)
     # mesh_large=mesh_large.filter_smooth_taubin(10)
     mesh_out.compute_vertex_normals()
@@ -123,7 +123,7 @@ if __name__=="__main__":
     center = np.mean(centers, axis=0)
     normals[np.einsum("ij,ij->i", centers - center, normals) < 0] *= -1
     pcd.normals = o3d.utility.Vector3dVector(normals)
-    # o3d.visualization.draw_geometries([pcd], point_show_normal=True)
+    o3d.visualization.draw_geometries([pcd], point_show_normal=True)
 
     mesh=mesh_points_sphere(centers, normals)
     '''centered_points = centers - center
@@ -173,11 +173,29 @@ if __name__=="__main__":
 
     # save the mesh
     o3d.visualization.draw_geometries([mesh_large], point_show_normal=True)
+
+
+
+
+
+
+
+
     #o3d.io.write_triangle_mesh("./pointclouds/test.obj", mesh_large,write_triangle_uvs=True)
 
     #sadly o3d doesent seem to be able to write out the uvs to the .obj
     #so here we go
+
     write_obj("./pointclouds/neuron_mesh_full_flattened_and_spread.obj",mesh_large.vertices,mesh_large.triangles,
               mesh_large.vertex_normals,uvs)
 
-    numpy.save("./pointclouds/neuron_positions_flattened_and_spread.npy",flattened_positions)
+    #numpy.save("./pointclouds/neuron_positions_flattened_and_spread.npy",flattened_positions)
+
+    spread_wire=o3d.geometry.LineSet.create_from_triangle_mesh(mesh_large)
+    o3d.visualization.draw_geometries([spread_wire])
+
+
+    mesh_large.vertices=o3d.utility.Vector3dVector(positions)
+    normal_wire=o3d.geometry.LineSet.create_from_triangle_mesh(mesh_large)
+
+    o3d.visualization.draw_geometries([normal_wire])

@@ -138,12 +138,14 @@ Shader "Unlit/edgeShaderTextured"
 
 				d1 *= _ScreenParams.xy;
 
-				float2 normal = _pixelWidth * normalize(float2(-d1.y,d1.x));
 
 
 				float2 start = input[0].vertex.xy/input[0].vertex.w;
 				float2 end = input[1].vertex.xy/input[1].vertex.w;
 
+				float2 major = end - start;
+				float2 normal = _pixelWidth * normalize(float2(-major.y,major.x)/_ScreenParams.xy);
+				
 				float len = length((end - start)*_ScreenParams.xy);
 				float ratio = length(normal) / len;
 				//float4 minor= corners[1]-corners[0];
@@ -170,7 +172,6 @@ Shader "Unlit/edgeShaderTextured"
 				}
 				
 
-				float2 major = end - start;
 
 				g2f vertices[8];
 				vertices[0].vertex = float4(start+a*major+normal/_ScreenParams.xy,1,1);

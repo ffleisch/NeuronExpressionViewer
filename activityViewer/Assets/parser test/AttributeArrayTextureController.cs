@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using System.Linq;
 using AsyncTextureImport;
+using static AsyncTextureImport.TextureImporter;
 
 public class AttributeArrayTextureController : MonoBehaviour
 {
@@ -80,40 +81,54 @@ public class AttributeArrayTextureController : MonoBehaviour
         {
             return start <= step && step < end;
         }
+        public TextureImporter importer;
         public TextureContainer(int start, int end, string path, AttributeArrayTextureController parent)
         {
             this.start = start;
             this.end = end;
             this.path = path;
             this.parent = parent;
+            importer = new();
 
             //tex = LoadTextures.LoadPNG(path);
             //finishedLoading=true;
 
-            parent.startTextureContainerCoroutine(this);
-        }
+            //parent.startTextureContainerCoroutine(this);
 
+            parent.startRawDataTextureContainerCoroutine(this);
+        }
+        public RawTextureData getRawData() {
+            return importer.rawData;
+        }
 
 
     }
 
     void startTextureContainerCoroutine(TextureContainer cont)
     {
-
         StartCoroutine(nameof(loadTexAsync), cont);
-
     }
+
+    void startRawDataTextureContainerCoroutine(TextureContainer cont) {
+        StartCoroutine(nameof(loadRawDataAsync), cont);
+    }
+
     IEnumerator loadTexAsync(TextureContainer texContainer)
     {
 
-        TextureImporter importer = new();
-        yield return importer.ImportTexture(texContainer.path, FREE_IMAGE_FORMAT.FIF_PNG,1);
+        yield return texContainer.importer.ImportTexture(texContainer.path, FREE_IMAGE_FORMAT.FIF_PNG,1);
 
 
-        texContainer.tex = importer.texture;
+        texContainer.tex = texContainer.importer.texture;
         texContainer.finishedLoading = true;
         yield return null;
 
+    }
+    IEnumerator loadRawDataAsync(TextureContainer texContainer)
+    {
+        yield return texContainer.importer.ImportOnlyData(texContainer.path, FREE_IMAGE_FORMAT.FIF_PNG,1);
+        texContainer.finishedLoading = true;
+        yield return null;
     }
 
 
@@ -188,7 +203,7 @@ public class AttributeArrayTextureController : MonoBehaviour
                         }
                     }
                 }
-                catch (KeyNotFoundException e)
+                catch (KeyNotFoundException)
                 {
                     throw new System.Exception("Could not find the image file");
                 }
@@ -246,11 +261,16 @@ public class AttributeArrayTextureController : MonoBehaviour
         attributesInArray.Clear();
 
         if (loadedAttributes.Count == 0) { return; }
-        var tex0 = loadedAttributes.Values.First().tex;
-        arrayTextureWidth = tex0.width;
-        arrayTextureTexelSize = tex0.texelSize;
 
-        arrayTex = new(tex0.width, tex0.height, loadedAttributes.Count, TextureFormat.RGBA32, false);
+        //var tex0 = loadedAttributes.Values.First().tex;
+        var rawData = loadedAttributes.Values.First().getRawData();
+        
+        arrayTextureWidth = rawData.width;
+        arrayTextureTexelSize = Vector2.one/new Vector2(rawData.width,rawData.height);
+
+        arrayTex = new(rawData.width, rawData.height, loadedAttributes.Count, TextureFormat.BGRA32, false);
+        
+        
         arrayTex.filterMode = FilterMode.Point;
         arrayTex.wrapMode = TextureWrapMode.Repeat;
         int i = 0;
@@ -258,8 +278,8 @@ public class AttributeArrayTextureController : MonoBehaviour
         {
             //Debug.Log(pair.Value.path);
             attributesInArray.Add((int)pair.Key);
-            arrayTex.SetPixels(pair.Value.tex.GetPixels(0), i, 0);
-            
+            //arrayTex.SetPixels(pair.Value.tex.GetPixels(0), i, 0);
+            arrayTex.SetPixelData(pair.Value.getRawData().data,0,i);
             i++;
         }
         arrayTex.Apply();

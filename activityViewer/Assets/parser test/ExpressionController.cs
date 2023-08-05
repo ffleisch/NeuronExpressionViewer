@@ -20,7 +20,7 @@ public class ExpressionController : MonoBehaviour
     Label labelStatus;
     //ExpressionTexturesControlller textureController;
     // Start is called before the first frame update
-    AttributeArrayTextureController arrayTextureController;
+    BufferedAttributeArrayTextureController arrayTextureController;
     ConnectionMeshController meshController;
     void Start()
     {
@@ -41,7 +41,7 @@ public class ExpressionController : MonoBehaviour
         toggleRun.RegisterCallback<ChangeEvent<bool>>(toggleRunChanged);
         sliderStep.RegisterCallback<ChangeEvent<int>>(stepChanged);
 
-        arrayTextureController = gameObject.AddComponent<AttributeArrayTextureController>();
+        arrayTextureController = gameObject.AddComponent<BufferedAttributeArrayTextureController>();
         arrayTextureController.init();
         arrayTextureController.material = GetComponent<Renderer>().sharedMaterial;
         
@@ -128,7 +128,7 @@ public class ExpressionController : MonoBehaviour
         if (meshController) {
             meshController.step =evt.newValue;
         }
-        //Debug.Log(evt + " " + evt.newValue);
+        Debug.Log(evt + " " + evt.newValue);
     }
     void toggleRunChanged(ChangeEvent<bool> evt)
     {
@@ -144,14 +144,11 @@ public class ExpressionController : MonoBehaviour
     {
         if (toggleRun.value)
         {
-            if (!arrayTextureController.texturesChanged)
-            {
 
-                if (Time.frameCount % 2 == 0) { 
-                    arrayTextureController.step += 1;
+                if (Time.frameCount % 1 == 0) { 
+                    arrayTextureController.attemptIncrementStep(1);
                     sliderStep.value = arrayTextureController.step;
                 }
-            }
         }
 
 

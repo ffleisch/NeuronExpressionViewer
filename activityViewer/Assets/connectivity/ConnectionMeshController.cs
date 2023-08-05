@@ -58,6 +58,8 @@ public class ConnectionMeshController : MonoBehaviour
 
     void loadMeshesForDatasetAttribute(dataSetsEnum dataSet)
     {
+        
+
         var name_format_regex = new Regex("\\.dae$");
 
         string file_path = Path.Combine(".", "Assets", "Resources", "connectivity", AttributeUtils.dataSetNames[dataSet], "network");
