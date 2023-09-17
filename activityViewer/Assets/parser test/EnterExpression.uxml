@@ -1,13 +1,38 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:GroupBox style="width: 512px;">
-        <ui:TextField picking-mode="Ignore" label="Expression" value="col(fired)" text="col(fired)" name="TextFieldExpression" />
-        <ui:Label text="Status" display-tooltip-when-elided="true" name="LabelStatus" />
-        <ui:GroupBox style="width: 400px;" />
-        <ui:Toggle label="Run" name="ToggleRun" />
-        <ui:SliderInt picking-mode="Ignore" label="Frame" value="0" high-value="10000" name="SliderIntFrame" />
-        <uie:EnumField label="Dataset" type="dataSetsEnum, Assembly-CSharp" name="EnumFieldDataset" />
+        <ui:Label text="Expression" display-tooltip-when-elided="true" />
         <ui:GroupBox>
-            <ui:DropdownField label="Gradient" index="-1" choices="System.Collections.Generic.List`1[System.String]" />
+            <ui:DropdownField label="Ensemble" index="-1" choices="System.Collections.Generic.List`1[System.String]" name="EnumFieldDataset" />
+            <ui:TextField picking-mode="Ignore" label="Expression" value="grad(fired)" text="grad(fired)" name="TextFieldExpression" />
+            <ui:Toggle label="Run" name="ToggleRun" />
+            <ui:SliderInt picking-mode="Ignore" label="Frame" value="0" high-value="10000" name="SliderIntFrame" />
+            <ui:GroupBox style="flex-direction: column; justify-content: space-between; width: 185px; margin-left: 0; padding-left: 0;">
+                <ui:GroupBox style="flex-direction: row; justify-content: space-between; margin-left: 3px; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0;">
+                    <ui:Label text="Current Frame" display-tooltip-when-elided="true" />
+                    <ui:Label text="Label" display-tooltip-when-elided="true" name="LabelCurrentFrame" />
+                </ui:GroupBox>
+            </ui:GroupBox>
+            <ui:GroupBox name="GroupBoxGradientContainer" style="margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0;">
+                <ui:DropdownField label="Gradient" index="-1" choices="System.Collections.Generic.List`1[System.String]" name="DropdownFieldGradient" />
+            </ui:GroupBox>
+        </ui:GroupBox>
+        <ui:Label text="Connections" display-tooltip-when-elided="true" />
+        <ui:GroupBox>
+            <ui:Toggle label="Show New" name="ToggleNew" value="true" />
+            <ui:Toggle label="Show Unchanged" name="ToggleSame" value="true" />
+            <ui:Toggle label="Show Removed" name="ToggleRemoved" />
+            <ui:Slider picking-mode="Ignore" label="LineWidth" value="15" high-value="50" low-value="0.01" name="SliderLineWidth" />
+            <ui:RadioButtonGroup label="Show Selection" value="1" choices="None,Single Neuron,Area,All" name="RadioButtonGroupSelection" />
+            <ui:GroupBox style="flex-direction: column; justify-content: space-between; width: 185px;">
+                <ui:GroupBox style="flex-direction: row; justify-content: space-between; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0;">
+                    <ui:Label text="Selected Neuron" display-tooltip-when-elided="true" />
+                    <ui:Label text="Label" display-tooltip-when-elided="true" name="LabelSelectedNeuron" />
+                </ui:GroupBox>
+                <ui:GroupBox style="flex-direction: row; justify-content: space-between; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0;">
+                    <ui:Label text="Selected Area" display-tooltip-when-elided="true" />
+                    <ui:Label text="Label" display-tooltip-when-elided="true" name="LabelSelectedArea" />
+                </ui:GroupBox>
+            </ui:GroupBox>
         </ui:GroupBox>
     </ui:GroupBox>
 </ui:UXML>

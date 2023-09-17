@@ -14,7 +14,6 @@ Material:
   - USE_TEXTURE
   - _SHOW_NEW_EDGES_ON
   - _SHOW_SAME_EDGES_ON
-  - _SHOW_SELECTED_AREA_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -65,8 +64,8 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints:
-    - _n_area: 10
-    - _n_index: 0
+    - _n_area: 25
+    - _n_index: 21472
     m_Floats:
     - _BumpScale: 1
     - _Cutoff: 0.5
@@ -85,12 +84,12 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     - _connection_offset: 1.16
-    - _pixelWidth: 20.8
+    - _pixelWidth: 15
     - _show_all: 0
     - _show_new_edges: 1
-    - _show_removed_edges: 0
-    - _show_same_edges: 1
-    - _show_selected_area: 1
+    - _show_removed_edges: 1
+    - _show_same_edges: 0
+    - _show_selected_area: 0
     - _show_selected_neuron: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}

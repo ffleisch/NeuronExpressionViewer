@@ -8,9 +8,10 @@ Shader "Unlit/rpn_interpreter"
         _attributesArrayTexture("Attributes Array Texture", 2DArray) = "" {}
         _gradientTex ("Gradient Texture", 2D) = "white" {}
         _neuronMap("Map from surface to the neurons",2D) = "black"{}
-		_n_neurons("Number of Neurons",Integer)=50000
-		_step("Step",Integer)=0
-        _total_alpha("totoal aplha",Float)=1
+        _n_neurons("Number of Neurons",Integer) = 50000
+        _step("Step",Integer) = 0
+        _maxStep("Number of steps in texture",Integer) = 83
+        _total_alpha("total aplha",Float)=1
         test_index("Test index",Integer)=0
     }
     SubShader
@@ -58,6 +59,7 @@ Shader "Unlit/rpn_interpreter"
             uniform float _attributeIndices[16];
 			int _n_neurons;
 			int _step;
+            int _maxStep;
             uint _attributesArrayTextureWidth;
             float4 _attributesArrayTextureTexelSize;
 
@@ -73,7 +75,9 @@ Shader "Unlit/rpn_interpreter"
 			}
             
             float sampleStep(float attributeIndex,float index) {
-                uint intIndex = index+_n_neurons*_step;
+
+                int _modStep = min(_step, _maxStep);
+                uint intIndex = index+_n_neurons*_modStep;
 				uint width = _attributesArrayTextureWidth;
 				float x = _attributesArrayTextureTexelSize.x * (intIndex % width);
 				float y = _attributesArrayTextureTexelSize.y * (width - (intIndex / width) - 1);

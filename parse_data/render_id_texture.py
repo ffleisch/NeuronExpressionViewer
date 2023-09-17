@@ -4,7 +4,6 @@ import imageio as imageio
 import numpy as np
 import collada as cld
 import scipy.spatial
-from IPython.lib.deepreload import found_now
 from PIL import Image
 from matplotlib import pyplot as plt, patches
 from matplotlib import tri
@@ -71,7 +70,7 @@ print(bounding_boxes)
 
 print("building aabb tree")
 tree = aabbtree.AABBTree()
-for i, box in enumerate(bounding_boxes[0:1000]):
+for i, box in enumerate(bounding_boxes):
     tree.add(aabbtree.AABB([(box[0], box[2]), (box[1], box[3])]), i)
     if (i % 1000 == 0):
         print("%d percent" % (100 * i / bounding_boxes.shape[0]))

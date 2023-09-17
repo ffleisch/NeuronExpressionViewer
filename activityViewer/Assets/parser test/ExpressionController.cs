@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.UIElements;
+//using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -13,8 +13,23 @@ public class ExpressionController : MonoBehaviour
     VisualElement root;
 
     private SliderInt sliderStep;
-    public EnumField enumFieldDataset;
+    private Slider sliderLineWidth;
+
+    public DropdownField enumFieldDataset;
+    public DropdownField gradientDropdownField;
+
     public Toggle toggleRun;
+
+    public Toggle toggleShowNew;
+    public Toggle toggleShowSame;
+    public Toggle toggleShowRemoved;
+
+    public Label labelSelectedNeuron;
+    public Label labelSelectedArea;
+    public Label labelCurrentFrame;
+
+
+    public RadioButtonGroup radioButtonGroupSelection;
 
     TextField textFieldExpression;
     Label labelStatus;
@@ -22,22 +37,60 @@ public class ExpressionController : MonoBehaviour
     // Start is called before the first frame update
     BufferedAttributeArrayTextureController arrayTextureController;
     ConnectionMeshController meshController;
+    public Dictionary<string, Texture2D> gradientDict = new();
+    public Dictionary<string, int> gradientIndexDict = new();
+    public Dictionary<string, dataSetsEnum> datasetDropdownDict = new();
+
+    WhereMousePoint mousePointer;
     void Start()
     {
         var uiDocument = GetComponent<UIDocument>();
+        mousePointer = GetComponent<WhereMousePoint>();
+        meshController = GetComponent<ConnectionMeshController>();
+        
         //textureController = gameObject.AddComponent<ExpressionTexturesControlller>();
 
         root = uiDocument.rootVisualElement;
         textFieldExpression = root.Q("TextFieldExpression") as TextField;
         labelStatus = root.Q("LabelStatus") as Label;
 
-        enumFieldDataset = root.Q("EnumFieldDataset") as EnumField;
+        enumFieldDataset = root.Q("EnumFieldDataset") as DropdownField;
+        enumFieldDataset.RegisterCallback<ChangeEvent<string>>(dataSetEnumFieldChanged);
+
+        enumFieldDataset.choices.Clear();
+        foreach (dataSetsEnum d in System.Enum.GetValues(typeof(dataSetsEnum))) {
+            string name =d.ToString();
+            datasetDropdownDict[name] = d;
+            enumFieldDataset.choices.Add(name);
+        }
+
+
+        labelCurrentFrame = root.Q("LabelCurrentFrame") as Label;
+        labelSelectedNeuron= root.Q("LabelSelectedNeuron") as Label;
+        labelSelectedArea= root.Q("LabelSelectedArea") as Label;
+
+
 
         toggleRun = root.Q("ToggleRun") as Toggle;
         sliderStep = root.Q("SliderIntFrame") as SliderInt;
 
+        sliderLineWidth = root.Q("SliderLineWidth") as Slider;
+        sliderLineWidth.RegisterCallback<ChangeEvent<float>>(lineWidthChanged);
+        lineWidthChanged(new ChangeEvent<float>());
+
+
+        toggleShowNew= root.Q("ToggleNew") as Toggle;
+        toggleShowSame = root.Q("ToggleSame") as Toggle;
+        toggleShowRemoved = root.Q("ToggleRemoved") as Toggle;
+        toggleShowNew.RegisterCallback<ChangeEvent<bool>>(connectionShowChanged);
+        toggleShowSame.RegisterCallback<ChangeEvent<bool>>(connectionShowChanged);
+        toggleShowRemoved.RegisterCallback<ChangeEvent<bool>>(connectionShowChanged);
+
+        radioButtonGroupSelection = root.Q("RadioButtonGroupSelection") as RadioButtonGroup;
+        radioButtonGroupSelection.RegisterCallback<ChangeEvent<int>>(connectionSelectionChanged);
+        radioButtonGroupSelection.value = 0;
+
         textFieldExpression.RegisterValueChangedCallback(expressionChanged);
-        enumFieldDataset.RegisterCallback<ChangeEvent<System.Enum>>(dataSetEnumFieldChanged);
         toggleRun.RegisterCallback<ChangeEvent<bool>>(toggleRunChanged);
         sliderStep.RegisterCallback<ChangeEvent<int>>(stepChanged);
 
@@ -47,14 +100,42 @@ public class ExpressionController : MonoBehaviour
         
         setExpression(textFieldExpression.value);
 
-        meshController = GetComponent<ConnectionMeshController>();
 
 
         MeshFilter mf = GetComponent<MeshFilter>();
         center = mf.mesh.vertices.Aggregate(new Vector3(0, 0, 0), (s, v) => s + transform.TransformPoint(v)) / mf.mesh.vertices.Length;
         center = center - transform.position;
         center.z *=-1;//no idea why this is necessary, but i figured it out using gizmos
+        
+        connectionShowChanged(new());
+        VisualTreeAsset gradientDropdownPrefab = Resources.Load<VisualTreeAsset>("gradientDropdown");
+        Debug.Log(gradientDropdownPrefab);
+        gradientDropdownField = root.Q("DropdownFieldGradient") as DropdownField;
+        gradientDropdownField.choices = new();
+        List<string> choiceList=new();
+        int num = 0;
+        foreach (Texture2D gradient in Resources.LoadAll("gradients")) {
 
+            gradientDict[gradient.name]=gradient;
+            gradientIndexDict[gradient.name] =num;
+            var root = gradientDropdownPrefab.CloneTree();
+            //gradientDropdownField.Add(new Label(gradient.name));
+
+            gradientDropdownField.choices.Add(gradient.name);
+
+            choiceList.Add(gradient.name);
+            
+            Label labelName=root.Q("LabelName")as Label;
+            //labelName.text =gradient.name;
+            num++;
+        };
+        gradientDropdownField.RegisterCallback<ChangeEvent<string>>(selectedGradientChanged);
+        gradientDropdownField.index=gradientIndexDict["Magma"];
+        //var newGradientDropdown = new DropdownField("Gradient",choiceList,0);
+        //var groupBoxGradientContainer = root.Q("GroupBoxGradientContainer");
+        //groupBoxGradientContainer.Clear();
+        
+        enumFieldDataset.value = dataSetsEnum.viz_no_network.ToString();
     }
 
     const int maxTokens = 256;
@@ -65,7 +146,19 @@ public class ExpressionController : MonoBehaviour
         setExpression(evt.newValue);
     }
 
+    void connectionShowChanged(ChangeEvent<bool> evt) {
+        meshController.setConnectionsVisibility(toggleShowNew.value,toggleShowSame.value,toggleShowRemoved.value);
+    }
 
+    void connectionSelectionChanged(ChangeEvent<int> evt) {
+        meshController.setConnectionsSelection(radioButtonGroupSelection.value);
+    }
+
+    void selectedGradientChanged(ChangeEvent<string> evt) {
+        Debug.Log(gradientDict[evt.newValue]);
+        var mat = GetComponent<Renderer>().sharedMaterial;
+        mat.SetTexture("_gradientTex",gradientDict[evt.newValue]); 
+    }
     void setExpression(string expression)
     {
         //Debug.Log(expression);
@@ -129,16 +222,26 @@ public class ExpressionController : MonoBehaviour
             meshController.step =evt.newValue;
         }
         Debug.Log(evt + " " + evt.newValue);
+        labelCurrentFrame.text =evt.newValue.ToString();
     }
+
+
+
+    void lineWidthChanged(ChangeEvent<float> evt) {
+        mousePointer.lineWidth = sliderLineWidth.value;
+        mousePointer.setShaderParams();
+    }
+
     void toggleRunChanged(ChangeEvent<bool> evt)
     {
         Debug.Log(evt.newValue);
     }
-    void dataSetEnumFieldChanged(ChangeEvent<System.Enum> evt)
+    void dataSetEnumFieldChanged(ChangeEvent<string> evt)
     {
+        dataSetsEnum newValue =datasetDropdownDict[evt.newValue];
         Debug.Log(evt.newValue);
-        meshController.dataSet = (dataSetsEnum)evt.newValue;
-        arrayTextureController.dataSet = (dataSetsEnum)evt.newValue;
+        meshController.dataSet = newValue;
+        arrayTextureController.dataSet = newValue;
     }
     private void FixedUpdate()
     {
@@ -148,9 +251,11 @@ public class ExpressionController : MonoBehaviour
                 if (Time.frameCount % 1 == 0) { 
                     arrayTextureController.attemptIncrementStep(1);
                     sliderStep.value = arrayTextureController.step;
+                    labelCurrentFrame.text =arrayTextureController.step.ToString();
                 }
         }
-
+        labelSelectedArea.text =mousePointer.area_index.ToString() ;
+        labelSelectedNeuron.text =mousePointer.index.ToString() ;
 
     }
 

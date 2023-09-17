@@ -19,7 +19,7 @@ public class ConnectionMeshController : MonoBehaviour
     [SerializeField]
     private int _step;
 
-     public dataSetsEnum dataSet
+    public dataSetsEnum dataSet
     {
         get { return _dataSet; }
         set
@@ -34,7 +34,7 @@ public class ConnectionMeshController : MonoBehaviour
     private dataSetsEnum _dataSet;
 
 
-    
+
 
 
 
@@ -54,11 +54,11 @@ public class ConnectionMeshController : MonoBehaviour
 
 
     List<(int, GameObject)> meshes = new();
-
+    
 
     void loadMeshesForDatasetAttribute(dataSetsEnum dataSet)
     {
-        
+
 
         var name_format_regex = new Regex("\\.dae$");
 
@@ -88,8 +88,8 @@ public class ConnectionMeshController : MonoBehaviour
         foreach ((var path, var step) in namesAndStep)
         {
             var m = Resources.Load<GameObject>(path);
-            Debug.Log(path);
-            Debug.Log(m); ;
+            //Debug.Log(path);
+            //Debug.Log(m); ;
             if (m != null)
             {
                 meshes.Add((step / 100, m));
@@ -105,9 +105,57 @@ public class ConnectionMeshController : MonoBehaviour
 
     }
 
-    void datasetChanged(dataSetsEnum newDataset) {
-        loadMeshesForDatasetAttribute(newDataset);    
+    void datasetChanged(dataSetsEnum newDataset)
+    {
+        loadMeshesForDatasetAttribute(newDataset);
     }
+
+    public void setConnectionsVisibility(bool showNew, bool showSame, bool showRemoved)
+    {
+        foreach (Transform t in transform)
+        {
+            var renderer = t.gameObject.GetComponent<Renderer>();//the child should be the mesh for the coneectivity
+            renderer.sharedMaterial.SetFloat("_show_new_edges", showNew ? 1 : 0);
+            renderer.sharedMaterial.SetFloat("_show_same_edges", showSame ? 1 : 0);
+            renderer.sharedMaterial.SetFloat("_show_removed_edges", showRemoved ? 1 : 0);
+        }
+    }
+
+    public void setConnectionsSelection(int selection)
+    {
+        foreach (Transform t in transform)
+        {
+            var renderer = t.gameObject.GetComponent<Renderer>();//the child should be the mesh for the coneectivity
+            if (selection == 0)
+            {
+                renderer.sharedMaterial.SetFloat("_show_selected_neuron", 0);
+                renderer.sharedMaterial.SetFloat("_show_selected_area", 0);
+                renderer.sharedMaterial.SetFloat("_show_all", 0);
+            }
+            if (selection == 1)
+            {
+                renderer.sharedMaterial.SetFloat("_show_selected_neuron", 1);
+                renderer.sharedMaterial.SetFloat("_show_selected_area", 0);
+                renderer.sharedMaterial.SetFloat("_show_all", 0);
+            }
+            if (selection == 2)
+            {
+                renderer.sharedMaterial.SetFloat("_show_selected_neuron", 0);
+                renderer.sharedMaterial.SetFloat("_show_selected_area", 1);
+                renderer.sharedMaterial.SetFloat("_show_all", 0);
+            }
+            if (selection == 3)
+            {
+                renderer.sharedMaterial.SetFloat("_show_selected_neuron", 0);
+                renderer.sharedMaterial.SetFloat("_show_selected_area", 0);
+                renderer.sharedMaterial.SetFloat("_show_all", 1);
+            }
+        }
+
+    }
+
+
+
     void setStep(int step)
     {
         int last_i = 0;
@@ -125,7 +173,8 @@ public class ConnectionMeshController : MonoBehaviour
                         if (mf)
                             mf.sharedMesh = mf_o.sharedMesh;
                     }
-                    else {
+                    else
+                    {
                         if (mf)
                             mf.sharedMesh = null;
                     }
@@ -133,7 +182,7 @@ public class ConnectionMeshController : MonoBehaviour
 
                 //newMesh.transform.parent = transform;
 
-                var mp = GetComponent<whereMousePoint>();
+                var mp = GetComponent<WhereMousePoint>();
                 mp.setShaderParams();
             }
             last_i = i;

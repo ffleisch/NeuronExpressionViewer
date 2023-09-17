@@ -1,11 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.UIElements;
+//using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 public class DataController : MonoBehaviour
 {
-    private Button buttonResetSliders;
+   /* private Button buttonResetSliders;
 
     //public int step { get; set; } = 0;
 
@@ -128,5 +128,5 @@ public class DataController : MonoBehaviour
         {
             step += 1;
         }
-    }
+    }*/
 }

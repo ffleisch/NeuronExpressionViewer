@@ -113,13 +113,20 @@ public class BufferedAttributeArrayTextureController : MonoBehaviour
             attributesInArray.Clear();
             parent.startMakeArrayTextureCoroutine(this);
         }
-
+        ~ArrayTextureContainer()
+        {
+            Destroy(arrayTex);
+        }
 
         public bool finishedLoading()
         {
             return !importers.Any(x => !x.done);
         }
 
+        public void destroyTexture()
+        {
+            Destroy(arrayTex);
+        }
 
         public Texture2DArray arrayTex;
         public List<float> attributesInArray = new();
@@ -233,8 +240,11 @@ public class BufferedAttributeArrayTextureController : MonoBehaviour
         cachedContainers.Add(cont);
         if (cachedContainers.Count() > maxCachedContainers)
         {
+            var containerUnload = cachedContainers[0];
+            containerUnload.destroyTexture();
             cachedContainers.RemoveAt(0);
         }
+        Debug.Log(cachedContainers.Count);
     }
 
     int currentIntervallEnd = 0;
@@ -293,7 +303,7 @@ public class BufferedAttributeArrayTextureController : MonoBehaviour
     public void setAttributesToBeLoaded(List<attributesEnum> attributeList)
     {
         this.attributeList = attributeList;
-        cachedContainers.Clear();//maybe introduce a cvheck for the lists so not all cached array textures have to be thrown away
+        clearCache();
         currentContainer = null;
         cacheStepRange(step);
 
@@ -305,13 +315,24 @@ public class BufferedAttributeArrayTextureController : MonoBehaviour
     void stepChanged(int step)
     {
         cacheStepRange(step);
-        material.SetInteger("_step", step - currentIntervallStart);
+        //material.SetInteger("_step", step - currentIntervallStart);
+        setShaderParams();
     }
 
+    void clearCache()
+    {
+        foreach (var c in cachedContainers)
+        {
+            c.destroyTexture();
+        }
+
+        cachedContainers.Clear();//maybe introduce a cvheck for the lists so not all cached array textures have to be thrown away
+
+    }
 
     void datasetChanged(dataSetsEnum newDataset)
     {
-        cachedContainers.Clear();//maybe introduce a cvheck for the lists so not all cached array textures have to be thrown away
+        clearCache();
         currentContainer = null;
         cacheStepRange(step);
     }
@@ -328,7 +349,7 @@ public class BufferedAttributeArrayTextureController : MonoBehaviour
                     return step;
                 }
             }
-            cacheStepRange(step+stepSize);
+            cacheStepRange(step + stepSize);
             return step;
 
         }
@@ -361,7 +382,15 @@ public class BufferedAttributeArrayTextureController : MonoBehaviour
 
         if (currentContainer != null && currentContainer.arrayTexComplete && currentContainer.arrayTex.depth > 0)
         {
-            testArray = currentContainer.arrayTex;
+            setShaderParams();
+        }
+
+
+    }
+    void setShaderParams()
+    {
+        if (currentContainer != null && currentContainer.arrayTexComplete && currentContainer.arrayTex.depth > 0)
+        {
             var arrayTextureWidth = currentContainer.arrayTex.width;
             var arrayTextureTexelSize = currentContainer.arrayTex.texelSize;
             material.SetTexture("_attributesArrayTexture", currentContainer.arrayTex);
@@ -371,9 +400,7 @@ public class BufferedAttributeArrayTextureController : MonoBehaviour
             currentContainer.attributesInArray.CopyTo(attributeIndices, 0);
             material.SetFloatArray("_attributeIndices", attributeIndices);
             material.SetInteger("_step", step - currentIntervallStart);
+            material.SetInteger("_maxStep", currentIntervallEnd - currentIntervallStart - 1);
         }
-
-
     }
-
 }
