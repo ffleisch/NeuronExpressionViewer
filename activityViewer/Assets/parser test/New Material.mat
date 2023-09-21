@@ -71,7 +71,7 @@ Material:
     m_Ints:
     - _maxStep: 82
     - _n_neurons: 50000
-    - _step: 60
+    - _step: 81
     - test_index: 23
     m_Floats:
     - _BumpScale: 1

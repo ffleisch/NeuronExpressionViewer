@@ -1,5 +1,8 @@
 Shader "Unlit/edgeShaderTextured"
 {
+	//billboarding shader for displaying neuron connections
+
+
 	Properties
 	{
 		_col("Color",Color) = (0,0,0,1)
@@ -84,16 +87,23 @@ Shader "Unlit/edgeShaderTextured"
 
 			[maxvertexcount(8)]
 			void geom(triangle v2g input[3], inout TriangleStream<g2f> triStream) {
+		
+
+				//indices of the connected neurons
 				uint i1 = uint(input[0].uv.x+0.5);
 				uint i2 = uint(input[1].uv.x+0.5);
 				
+				//areas of the connected neurons
 				uint a1 = uint(input[0].uv.y+0.5);
 				uint a2 = uint(input[1].uv.y+0.5);
 
+
 				bool direction=false;
 
-
+				//selection of to show connection
 				if (!_show_all) {
+
+					//at least one end is in the current selected area
 					if (_show_selected_area) {
 						if (!((a1 == _n_area) || (a2 == _n_area))) {
 							return;
@@ -104,6 +114,7 @@ Shader "Unlit/edgeShaderTextured"
 						}
 					}
 					else {
+						//at least one end is the current selected neuron
 						if (_show_selected_neuron) {
 							if (!((i1==_n_index)||(i2==_n_index))) {
 								return;
@@ -120,7 +131,7 @@ Shader "Unlit/edgeShaderTextured"
 					}
 				}
 				
-				
+				//check and hide/show difeerent edge types
 				uint edge_type = uint(input[0].edgeType.x + 0.5);
 				if (_show_same_edges == 0 && edge_type == 0) {
 					return;
@@ -134,24 +145,21 @@ Shader "Unlit/edgeShaderTextured"
 				}
 
 
-				float2 d1 = input[0].vertex.xy - input[1].vertex.xy;//input[i].mixedAdjacency.xy-input[i].vertex.xy;
 
-				d1 *= _ScreenParams.xy;
-
-
-
+				//clipsapce to screenspace
 				float2 start = input[0].vertex.xy/input[0].vertex.w;
 				float2 end = input[1].vertex.xy/input[1].vertex.w;
 
+				//direction of the connection in screen space
 				float2 major = end - start;
 				float2 normal = _pixelWidth * normalize(float2(-major.y,major.x)/_ScreenParams.xy);
 				
 				float len = length((end - start)*_ScreenParams.xy);
-				float ratio = length(normal) / len;
-				//float4 minor= corners[1]-corners[0];
-				//float4 major = corners[2] - corners[0];
-				//float major_length = length(major);
 				
+				//how wide is the connection rtelative to its length
+				float ratio = length(normal) / len;
+				
+
 				float offset_ratio = _connection_offset*ratio;
 				//float line_ratio =length(minor) / (major_length*2);
 
@@ -159,20 +167,19 @@ Shader "Unlit/edgeShaderTextured"
 					offset_ratio = 0.25;
 				}
 
-				//float a = offset_ratio;
+
+				//offset the connection from the neuron position, except when its to close
 				float a =direction? offset_ratio:0;
 				float b = a+ratio;
-				//float d = 1-offset_ratio;
 				float d =direction?1:( 1-offset_ratio);
 				float c = d-ratio;// d - line_ratio;
 				if (b > c) {
 					b =(a+d)/2.0;
 					c = (a + d) / 2.0;
-				
 				}
 				
 
-
+				//create the 4 vertices for the billboarding
 				g2f vertices[8];
 				vertices[0].vertex = float4(start+a*major+normal/_ScreenParams.xy,1,1);
 				vertices[0].uv = float2(0,0);
@@ -209,6 +216,8 @@ Shader "Unlit/edgeShaderTextured"
 			v2g vert(appdata v)
 			{
 				v2g o;
+
+				//project the vertices into screenspace before the geom shader
 				o.vertex = UnityObjectToClipPos(v.vertex);
 				o.uv = v.uv;
 				o.edgeType = v.edgeType;
@@ -220,6 +229,9 @@ Shader "Unlit/edgeShaderTextured"
 			{
 				// sample the texture
 				// apply fog
+
+
+				//apply the selected colors to the connection texture
 				float4 col = tex2Dlod(_texture,float4(i.uv,0,0));
 				if (i.selectionInfo) {
 					col = col[0] * _color_axons + col[1]* _color_dendrites * _color_selected;

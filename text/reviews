@@ -1,0 +1,63 @@
+reviews 
+
+
+Reviews:
+
+Noteworthy Comments:
+R1: The very involved preprocessing and the expression analysis are impressive tools.
+
+R2:I like that the authors provided a nice explanation about how they implemented their solution exploiting pre-calculations using textures and leveraging the capacity of the Unity engine on GPUs to efficiently do the visualization.
+
+R3: I admire the real time Unity implementation shown but the visualizations are very basic.
+
+R4: The presentation is highly flexible due to formula input.
+Visualization is based on Unity
+
+R5: The expression parsing was very impressive, yet could have been more intuitive.
+
+R6: This submission was the only one to visualize the travelling waves adequately.
+
+All Reviews:
+R1:
+The submission presents a very clear and simple UI with an interesting approach to define expressions. This provides seemingly unlimited analysis possibilities given domain experts understand the mathematical meaining of the data. This leads to a very technical description which, unfortunately, leaves the tasks and needs of the domain side behind. There is no real way to gain an overview, compare members and create a full workflow. Still, I think this work has some very interesting insights that might be useful for the community.
+
+R2:
+The solution presented provides a good overview of the available data and allows the user to navigate the structure and functional changes that the network undergoes during the simulation. It also provides means to observe new, unchanged and deleted connections by neuron or brain area. The visualization allows the user to observe the changes in connectivity through time.
+An easy way to compare different simulations or time steps quantitatively does not seem to be provided by this visualization. The general workflow seems to stop in the exploration of the available data but no tools to investigate the relationships between structure and function or between time steps or simulations are provided.
+
+R3:
+This is a impressive real time unity implementation of visualization of the brain data sets. The technical implementation is impressive while the visualization methods used are basic. All 4 tasks are addressed.
+
+R4:
+The assessment for project 1010 reveals that the visualization is based on Unity, commonly used for game development. The presentation is highly flexible, allowing for the input of formulas, which is not convenient for daily use but is future-proof for scientific applications. The software runs well even on older hardware. The video does a good job of explaining the processing and application. However, the live demonstration looks plain and unattractive, and the 3D view is limited to a surface view, possibly due to the use of Unity. Despite its speed, the project falls short in clearly addressing the tasks posed. Overall, it's a technically sound but incomplete and less visually appealing work.
+
+R5:
+The activity visualization was very concise and expressive; well done.
+I was not able to identify a way to compare two different simulations/two time steps in the same visualisation.
+
+R6:
+High Level Overview:
+- This submission highlights a unity based tool to visualize the neuronal nodes, the attributes of a node over time as well as the connections of a node.
+
+High Level Pros:
+- The use of unity and attributes as shaders allows for the fast application to many neurons and the fast rendering over time.
+
+High level cons:
+- The use of a expression bar for analysis is unique but can also be difficult if one does not realize what the available expressions are
+- There is a lack of application of this tool for the tasks asked. Even a general description of how this tool can help examine anything in the data would be great. This renders the data nicely but there is not real analysis done with this tool.
+
+Questions to the team:
+- It’s not clear from the video how the areas are marked? I see a small mention of this in the text Section 2.1 but not enough detail to tell how useful this metric is.
+
+
+Kritik:
+	-looks plain and unattractive
+	-limited to surface only
+	-basic visualization
+	-unintuitive input
+	-no comparisons between timesteps/datasets (quantitavely)
+	-no workflow
+	-whgat available expressions
+	-how can this tool hlep examine data
+	-how are areas marked
+

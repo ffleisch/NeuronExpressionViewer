@@ -8,8 +8,11 @@ using UnityEngine.UIElements;
 public class ExpressionController : MonoBehaviour
 {
 
+    //main script for reading user input and controlling other components
 
 
+
+    //field to be bound to the ui
     VisualElement root;
 
     private SliderInt sliderStep;
