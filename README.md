@@ -1,0 +1,2 @@
+# NeuronExpressionViewer
+We present a tool for the interactive real-time exploration of neuronal network simulations of plasticity changes in the human brain for the IEEE SciVis Contest 2023. To achieve visually pleasant results, we use the Unity game engine. We focus on displaying the changes and relations between the different attributes of the simulation in real time. A parser for infix expressions allows a high flexibility for the user to guide data exploration. The tool runs performantly and is extensible.
