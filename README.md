@@ -8,7 +8,7 @@ The following lists available functions and operators for the expression parser.
 
 Operator|Effect
 ---|---
-`+´ | addition
+`+` | addition
 `-` | substracion
 `*` |multiplication
 `\` |division
@@ -25,20 +25,19 @@ Operator|Effect
 
 Attribute|Name|Description
 ---|---|---
-uvx| Uv X |put the uv x coordinate on the stack
-uvy| Uv Y |put the uv y coordinate on the stack
-index| Neuron Index |put the index of the depicted neurton on the stack	
-area| Area Index |put the area on the stack
-
-fired|Fired Boolean|Did the neuron fire within the last sample step
-fired_fraction|Fired Fraction|In Percent: Number of firings since the last sampling
-activity|x|Electric Activity
-dampening|Secondary Variable|Inhibition variable used for the firing model of Izhikevich
-current_calcium|Calcium|Current calcium level
-target_calcium|Target Calcium|Target calcium level
-synaptic_input|Synaptic Input|Input electrical activity
-background_input|Background Activity|Background noise electric activity input
-grown_axons|Grown Axons|Number of currently grown axonal boutons
-conneted_axons|Connected Axons|Number of current outgoing connections
-grown_dendrites|Grown Excitatory Dendrites|Number of currently grown dendrite spines for excitatory connections
-connected_dendrites|Connected Excitatory Dendrites|Number of incoming excitatory connections
+`uvx`| Uv X |put the uv x coordinate on the stack
+`uvy`| Uv Y |put the uv y coordinate on the stack
+`index`| Neuron Index |put the index of the depicted neurton on the stack	
+`area`| Area Index |put the area on the stack
+`fired`|Fired Boolean|Did the neuron fire within the last sample step
+`fired_fraction`|Fired Fraction|In Percent: Number of firings since the last sampling
+`activity`|x|Electric Activity
+`dampening`|Secondary Variable|Inhibition variable used for the firing model of Izhikevich
+`current_calcium`|Calcium|Current calcium level
+`target_calcium`|Target Calcium|Target calcium level
+`synaptic_input`|Synaptic Input|Input electrical activity
+`background_input`|Background Activity|Background noise electric activity input
+`grown_axons`|Grown Axons|Number of currently grown axonal boutons
+`conneted_axons`|Connected Axons|Number of current outgoing connections
+`grown_dendrites`|Grown Excitatory Dendrites|Number of currently grown dendrite spines for excitatory connections
+`connected_dendrites`|Connected Excitatory Dendrites|Number of incoming excitatory connections
