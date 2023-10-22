@@ -26,6 +26,7 @@ public class ExpressionController : MonoBehaviour
     public Toggle toggleShowNew;
     public Toggle toggleShowSame;
     public Toggle toggleShowRemoved;
+    public Toggle toggleRotate;
 
     public Label labelSelectedNeuron;
     public Label labelSelectedArea;
@@ -75,6 +76,7 @@ public class ExpressionController : MonoBehaviour
 
 
         toggleRun = root.Q("ToggleRun") as Toggle;
+        toggleRotate= root.Q("ToggleRotate") as Toggle;
         sliderStep = root.Q("SliderIntFrame") as SliderInt;
 
         sliderLineWidth = root.Q("SliderLineWidth") as Slider;
@@ -260,6 +262,14 @@ public class ExpressionController : MonoBehaviour
         labelSelectedArea.text =mousePointer.area_index.ToString() ;
         labelSelectedNeuron.text =mousePointer.index.ToString() ;
 
+
+        //roatte around the x axis, if not dragged by mouse
+        if (toggleRotate.value) {
+            //if (!succesfullClick&&!succesfullMiddleDrag) { 
+                Vector3 worldCenter = transform.TransformPoint(center);
+                transform.RotateAround(worldCenter, Vector3.up, 360/(25f*60));
+            //}
+        }
     }
 
 

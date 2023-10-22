@@ -23,6 +23,7 @@
             <ui:Toggle label="Show Removed" name="ToggleRemoved" />
             <ui:Slider picking-mode="Ignore" label="LineWidth" value="15" high-value="50" low-value="0.01" name="SliderLineWidth" />
             <ui:RadioButtonGroup label="Show Selection" value="1" choices="None,Single Neuron,Area,All" name="RadioButtonGroupSelection" />
+            <ui:Toggle label="Rotate" name="ToggleRotate" />
             <ui:GroupBox style="flex-direction: column; justify-content: space-between; width: 185px;">
                 <ui:GroupBox style="flex-direction: row; justify-content: space-between; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0;">
                     <ui:Label text="Selected Neuron" display-tooltip-when-elided="true" />
